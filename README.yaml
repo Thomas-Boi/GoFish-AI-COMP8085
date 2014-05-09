@@ -1,0 +1,5 @@
+title: "Go Fish Game"
+contributors: leah8
+url: "https://github.com/leah8/gofish
+
+The program is a go fish game played between the user and the computer.  The goal is to get the most number of sets (which consists of 4 of a kind).  The game ends when either user runs out of cards or the deck runs out, and the winner is the player that made the most sets. 
