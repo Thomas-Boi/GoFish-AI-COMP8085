@@ -32,9 +32,44 @@ class Cards:
 			card = random.choice(self.deck)
 			self.userhand.append(card)
 			self.deck.remove(card)
-			
+	
+	def remove(self, turn, card):
+		if turn == 'user':
+			self.userhand.remove(card)
+		else:
+			self.comphand.remove(card)
+
+	def append(self, turn, card):
+		if turn == 'user': 
+			self.userhand.append(card)
+		else:
+			self.comphand.append(card)
+	
 	def printHand(self):
-		user_str = str(self.userhand).strip('[]')
+		temp = []
+		user_str = " "
+		for x in range(2, 15):
+			if x == 11:
+				curr = 'J'
+			elif x == 12:
+				curr = 'Q'
+			elif x == 13: 
+				curr = 'K'
+			elif x == 14:
+				curr = 'A'
+			else:
+				curr = str(x)
+
+			if x < 11:
+				count = self.userhand.count(x)
+			else:
+				count = self.userhand.count(curr)
+
+			while count > 0:
+				user_str = user_str + curr + ", "
+				count = count - 1
+
+		#user_str = str(self.userhand).strip('[]')
 		sets_str = str(self.usersets).strip('[]')
 		print("Your Hand: " + user_str.replace("'", ""))
 		print("Your Sets: " + sets_str.replace("'", ""))
