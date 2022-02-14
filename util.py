@@ -1,19 +1,5 @@
-from typing import Dict
-
-
-def create_empty_cards_dict(amount=0) -> Dict[str]:
-    """
-    Create an empty dictionary containing the values (2, 3, J, Q, etc.)
-    of a card as keys and the amount of it as values.
-    :param amount, the default amount of each cards.
-    """
-    cards = {}
-    # num values
-    for i in range(2, 11):
-        cards[i] = amount
-
-    # face cards
-    for i in ["J", "Q", "K", "A"]:
-        cards[i] = amount
-
-    return cards
+card_values = [str(card) for card in range(2, 11)]
+"""
+Values of cards in a standard deck of cards.
+"""
+card_values.extend(["J", "Q", "K", "A"])
