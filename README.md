@@ -1,3 +1,14 @@
+# Description
+This is a project to make a Go Fish AI that can play against 1 to 3 other opponents.
+
+# How to Use
+Run `py gofish.py` in the CLI to start the game.
+
+# Credits
+The base GoFish code is taken from Leah8's [repo](https://github.com/leah8/gofish)
+
+# Original README
+
 gofish
 ======
 
