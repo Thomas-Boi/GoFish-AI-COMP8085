@@ -6,6 +6,7 @@ import time
 from util import color_text
 from Deck import Deck
 from Player import Player
+from Move import Move
 
 class Game:
     def __init__(self, players: List[Player]=[]) -> None:
@@ -87,6 +88,7 @@ class Game:
                 cur_player.give_cards(move.card, amount)
                 if cur_player.check_for_fours_in_hand(move.card):
                     move.found_fours = move.card
+                    move.fours_source = Move.ASKING
                 move.succeed = True
                 move.amount = amount
             else:
@@ -95,13 +97,11 @@ class Game:
                 cur_player.give_cards(fish)
                 if cur_player.check_for_fours_in_hand(fish):
                     move.found_fours = fish
+                    move.fours_source = Move.FISHING
                 move.succeed = False
 
             if verbose:
-                print(move)
-                if not move.succeed:
-                    print(f"{color_text(cur_player.name, Fore.CYAN)} went fishing and found a {color_text(fish, Fore.YELLOW)}")
-                print("\n")
+                print(move, end='\n\n')
 
 
             # update all the players on result of move
