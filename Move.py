@@ -1,5 +1,9 @@
+from typing import Union
+from colorama import Fore
+from util import color_text
+
 class Move:
-    def __init__(self, asker: str, target: str, card: int):
+    def __init__(self, asker: str, target: str, card: str):
         """
         Record a Move that was made. This is just a data container, no functionality.
         :param asker, name of the player that asked for the card.
@@ -21,7 +25,7 @@ class Move:
         Card value.
         """
 
-        self.succeed = None
+        self.succeed: Union[bool, None] = None
         """
         Whether the player succeeded.
         """
@@ -31,17 +35,17 @@ class Move:
         The amount of cards the asker gotten from the target.
         """
 
-        self.found_fours = False
+        self.found_fours: Union[str, None] = None
         """
         Whether the asker found a four-of-a-kind as a result of the move.
         """
 
     def __str__(self) -> str:
-        txt = f"{self.asker} asked {self.target} for {self.card}."
+        txt = f"{color_text(self.asker, Fore.CYAN)} asked {color_text(self.target, Fore.CYAN)} for {color_text(self.card, Fore.YELLOW)}."
         if self.succeed is not None and self.amount is not None:
             succeed = 'successful' if self.succeed else 'not successful'
-            txt += f"\nThe move was {succeed} and {self.asker} got {self.amount} cards of value '{self.card}'."
+            txt += f"\nThe move was {color_text(succeed, Fore.YELLOW)} and {color_text(self.asker, Fore.CYAN)} got {color_text(self.amount, Fore.CYAN)} cards of value '{color_text(self.card, Fore.YELLOW)}'."
 
         if self.found_fours:
-            txt += f"\n{self.asker} collected FOUR OF A KIND for {self.card}"
+            txt += f"\n{color_text(self.asker, Fore.CYAN)} collected FOUR OF A KIND for {color_text(self.found_fours, Fore.GREEN)}"
         return txt

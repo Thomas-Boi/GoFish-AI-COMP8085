@@ -18,16 +18,21 @@ class Deck:
             for time in range(4):
                 self.cards.append(card)
     
+        random.shuffle(self.cards)
 
     def draw(self, amount: int) -> List[str]:
         """
         Draw amount of cards from the deck.
         :return a list of the cards drawn from the deck.
         """
-        return random.choices(self.cards, k=amount)
+        cards = []
+        for i in range(amount):
+            # since deck is already shuffled, just draw from top.
+            cards.append(self.cards.pop())
+        return cards
             
-    def go_fish(self) -> List[str]:
+    def go_fish(self) -> str:
         """
         Draw a random card from the deck.
         """
-        return self.draw(1)
+        return self.draw(1)[0]
