@@ -81,7 +81,6 @@ class Game:
                 print(f"Invalid target name {color_text(move.target, Fore.RED)}! Must choose a player within the game.")
                 continue
 
-            fish = None
             if target.has_card(move.card):
                 # get a card
                 amount = target.get_cards(move.card)
@@ -89,16 +88,18 @@ class Game:
                 if cur_player.check_for_fours_in_hand(move.card):
                     move.found_fours = move.card
                     move.fours_source = Move.ASKING
-                move.succeed = True
+                move.ask_succeed = True
                 move.amount = amount
             else:
                 # GO FISH
                 fish = self.deck.go_fish()
                 cur_player.give_cards(fish)
+                if fish == move.card:
+                    move.fish_succeed = True
+
                 if cur_player.check_for_fours_in_hand(fish):
                     move.found_fours = fish
                     move.fours_source = Move.FISHING
-                move.succeed = False
 
             if verbose:
                 print(move, end='\n\n')
@@ -108,10 +109,10 @@ class Game:
             for player in self.players:
                 player.update_player_state(move)
             
-            # turn pass to the next player IF the move was unsuccessful
-            # else, the player can continue to go
             time.sleep(3)
-            if not move.succeed:
+            # if the player got the card they wanted, they can go again
+            # else, turn pass to next player
+            if not (move.fish_succeed or move.ask_succeed):
                 self.cur_index = (self.cur_index + 1) % len(self.players)
 
         condition = "A player emptied their hands!"
