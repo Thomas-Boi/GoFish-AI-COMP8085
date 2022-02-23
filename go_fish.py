@@ -2,8 +2,8 @@ import colorama
 
 
 import Game
-from HumanPlayer import HumanPlayer
-from RandomAI import RandomAI
+from player.HumanPlayer import HumanPlayer
+from player.RandomAI import RandomAI
 
 
 def main():

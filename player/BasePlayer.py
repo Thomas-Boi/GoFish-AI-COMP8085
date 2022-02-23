@@ -5,17 +5,17 @@ from collections import namedtuple
 import util
 from Move import Move
 
-OtherPlayerStat = namedtuple("OtherPlayerStat", ['name', 'hand_size', 'fours'])
+VaguePlayerStat = namedtuple("VaguePlayerStat", ['name', 'hand_size', 'fours'])
 """
-Stores the stat that this play can see from other players.
+Stores the stat that this player can see from other players.
 """
 
 class Player:
+    """
+    An abstract player class that represents human or computer players.
+    """
 
     def __init__(self, name: str) -> None:
-        """
-        An abstract player class that represents human or computer players.
-        """
         self.name = name
         """
         Name of the player.
@@ -32,6 +32,7 @@ class Player:
         This only stores the value of the four-of-a-kinds.
         Ex: four 2s are stored as one 2 value in the set.
         """
+
 
     @staticmethod
     def create_cards_dict(amount=0) -> Dict[str, int]:
@@ -109,15 +110,13 @@ class Player:
         return False
         
 
-    # NEED IMPLEMENTATIONS HERE
-
     def get_stats_as_seen_from_opp(self):
         """
         Get the stats of the player as seen from the opponent's
         POV. This means they can see the player's name, hand count
         and four-of-a-kinds player already collected.
         """
-        return OtherPlayerStat(self.name, self.get_hand_size(), list(self.fours_of_a_kind))
+        return VaguePlayerStat(self.name, self.get_hand_size(), list(self.fours_of_a_kind))
 
     def get_hands_detailed(self) -> str:
         """
@@ -153,7 +152,7 @@ class Player:
         pass
 
 
-    def make_move(self, other_players: Tuple[OtherPlayerStat], deck_count: int) -> Move:
+    def make_move(self, other_players: Tuple[VaguePlayerStat], deck_count: int) -> Move:
         """
         Make a move and ask a player for a card.
         :return a tuple of target player, which is a number, and a card

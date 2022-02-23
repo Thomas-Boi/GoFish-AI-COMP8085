@@ -5,18 +5,29 @@ import time
 
 from util import color_text
 from Deck import Deck
-from Player import Player
+from player.Player import Player
 from Move import Move
 
 class Game:
-    def __init__(self, players: List[Player]=[]) -> None:
+    def __init__(self, players: List[Player]) -> None:
         """
         Represents a GoFish game. This game follows the standard
         Go Fish rules laid out here: https://www.officialgamerules.org/go-fish
         :param a list of players that will be playing the game.
         """
+        if len(players) < 2:
+            raise ValueError("Requires at least 2 players to play Go Fish.")
+
         self.deck = Deck()
+        """
+        The deck.
+        """
+
         self.players = players
+        """
+        The players in the game.
+        """
+
         self.cur_index = 0
         """
         The index of the player who's making a move.
@@ -45,7 +56,7 @@ class Game:
         self.cur_index = random.randint(0, len(self.players) - 1)
 
 
-    def play(self, verbose=True, slow=True):
+    def play(self, verbose=True):
         """
         Play the game.
         :param verbose, whether to print out extra info in the game.
@@ -103,24 +114,24 @@ class Game:
 
             if verbose:
                 print(move, end='\n\n')
+                time.sleep(3)
 
 
             # update all the players on result of move
             for player in self.players:
                 player.update_player_state(move)
             
-            time.sleep(3)
             # if the player got the card they wanted, they can go again
             # else, turn pass to next player
             if not (move.fish_succeed or move.ask_succeed):
                 self.cur_index = (self.cur_index + 1) % len(self.players)
 
+        # loop ended => see who's the winner        
         condition = "A player emptied their hands!"
         if len(self.deck.cards) == 0:
             condition = "The deck is emptied!"
         print(f"{color_text('GAME ENDED', Fore.YELLOW)}: {color_text(condition, Fore.YELLOW)} Finding the winner...")
-        # loop ended => see who's the winner        
-        # in case of a tie
+
         winners = []
         winnerAmount = -1
         for player in self.players:

@@ -1,8 +1,11 @@
 import random
-from Player import *
+from player.Player import *
 
 class RandomAI(Player):
-    def make_move(self, other_players: Tuple[OtherPlayerStat], deck_count: int) -> Move:
+    """
+    An AI that makes random moves.
+    """
+    def make_move(self, other_players: Tuple[VaguePlayerStat], deck_count: int) -> Move:
         # pick a random player 
         target = random.choice(other_players)
 
