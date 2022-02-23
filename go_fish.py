@@ -4,6 +4,7 @@ import colorama
 import Game
 from player.HumanPlayer import HumanPlayer
 from player.RandomAI import RandomAI
+from player.OppAwareAI import OppAwareAI
 
 
 def main():
@@ -11,8 +12,7 @@ def main():
     # init the players
     players = [
         HumanPlayer("You"),
-        RandomAI("a"),
-        RandomAI("b")
+        OppAwareAI("a")
     ]
 
     # play the game

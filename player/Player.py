@@ -2,7 +2,7 @@ from colorama import Fore
 from typing import Set, Tuple
 
 from util import *
-from Opponent import *
+from player.Opponent import *
 from Move import Move
 
 class Player:

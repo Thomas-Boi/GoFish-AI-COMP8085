@@ -27,7 +27,7 @@ class HumanPlayer(Player):
             target = input("Enter the name of the player you want to get a card from: ")
 
         # ask for card
-        card = input(f"Enter the card you want to get from {target}: ")
+        card = input(f"Enter the card you want to get from {color_text(target, Fore.CYAN)}: ")
         print('\n')
 
         return Move(self.name, target, card.upper()) # upper input to save typing time

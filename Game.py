@@ -73,7 +73,12 @@ class Game:
                 fours = None
                 if len(cur_player.fours) > 0:
                     fours = ", ".join(cur_player.fours)
-                print(f"{color_text(cur_player.name, Fore.CYAN)}'s fours-of-a-kinds are: {color_text(fours, Fore.GREEN)}.", end='\n\n')
+                print(f"{color_text(cur_player.name, Fore.CYAN)}'s fours-of-a-kinds are: {color_text(fours, Fore.GREEN)}.")
+                
+                opps = [f"  -{str(opp)}" for opp in cur_player.opponents.values()]
+                formatted_opps = '\n'.join(opps)
+                print(f"Knowledge about opponents: {(formatted_opps)}")
+                print("\n")
 
             # cur player will decide who to ask and what to ask for
             other_players = self.get_stats_from_opponents(self.players[self.cur_index])

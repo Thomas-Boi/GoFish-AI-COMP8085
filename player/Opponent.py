@@ -52,3 +52,36 @@ class Opponent:
         except KeyError:
             # invalid key => wrong card name
             return False
+
+    def give_cards(self, card: str, amount: int=1):
+        """
+        Give the cards to the player based on the amount
+        given. If the player got a four-of-a-kind, also update
+        itself.
+        NOTE: No error check here since we assume the deck is 
+        fairly constructed aka no more than 4 cards per value.
+        :param card
+        :param amount, the amount we are giving to the player.
+        """
+        self.hand[card] += amount
+        if self.hand[card] > 4:
+            self.hand[card] = 4
+
+    def remove_card(self, card: str):
+        """
+        Remove all cards with the same value from the player's hand.
+        :param the card value we are getting from the players.
+        """
+        self.hand[card] = 0
+
+    def __str__(self) -> str:
+        txt = f"{color_text(self.name, Fore.CYAN)} has {color_text(self.hand_size, Fore.CYAN)} cards: "
+        cards = []
+        for value, amount in self.hand.items():
+            if amount == 0:
+                continue
+            cards.append(f"{color_text(amount, Fore.CYAN)} of {color_text(value, Fore.YELLOW)}s")
+
+        # format it
+        txt += ", ".join(cards) + "."
+        return txt
