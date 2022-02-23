@@ -48,8 +48,10 @@ class Game:
             for card in hand:
                 player.give_cards(card)
 
+        for player in self.players:
             # update the players on the state of the board starting out
-            player.set_initial_state(initial_hands_count, len(self.players), len(self.deck.cards))
+            opps = self.get_stats_from_opponents(player)
+            player.set_initial_state(opps, len(self.deck.cards))
 
         # shuffle the cur_index so player who goes first
         # start randomly each round
@@ -69,16 +71,12 @@ class Game:
                 print(f"It's {color_text(cur_player.name, Fore.CYAN)}'s turn.")
                 print(cur_player.get_hands_detailed())
                 fours = None
-                if len(cur_player.fours_of_a_kind) > 0:
-                    fours = ", ".join(cur_player.fours_of_a_kind)
+                if len(cur_player.fours) > 0:
+                    fours = ", ".join(cur_player.fours)
                 print(f"{color_text(cur_player.name, Fore.CYAN)}'s fours-of-a-kinds are: {color_text(fours, Fore.GREEN)}.", end='\n\n')
 
             # cur player will decide who to ask and what to ask for
-            other_players = []
-            for i in range(len(self.players)):
-                if i == self.cur_index:
-                    continue
-                other_players.append(self.players[i].get_stats_as_seen_from_opp())
+            other_players = self.get_stats_from_opponents(self.players[self.cur_index])
 
             # check to ensure players picked the right card and target
             move = cur_player.make_move(tuple(other_players), len(self.deck.cards))
@@ -135,7 +133,7 @@ class Game:
         winners = []
         winnerAmount = -1
         for player in self.players:
-            amount = len(player.fours_of_a_kind)
+            amount = len(player.fours)
             if amount > winnerAmount:
                 winners = [player]
                 winnerAmount = amount
@@ -165,6 +163,18 @@ class Game:
 
         return False
 
+    def get_stats_from_opponents(self, player: Player):
+        """
+        Get the stats of the player's opponents.
+        :param player the player.
+        """
+        opps = []
+        for a_player in self.players:
+            # skip the own player
+            if player.name == a_player.name:
+                continue
+            opps.append(a_player.get_stats_as_seen_from_opp())
+        return tuple(opps)
 
     def get_player_by_name(self, name: str) -> Union[Player, None]:
         """

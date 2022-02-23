@@ -5,7 +5,7 @@ class RandomAI(Player):
     """
     An AI that makes random moves.
     """
-    def make_move(self, other_players: Tuple[VaguePlayerStat], deck_count: int) -> Move:
+    def make_move(self, other_players: Tuple[OppStat], deck_count: int) -> Move:
         # pick a random player 
         target = random.choice(other_players)
 

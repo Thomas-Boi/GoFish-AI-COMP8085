@@ -1,35 +1,39 @@
-from collections import namedtuple
+from typing import Set 
 
-
-OppStat = namedtuple("OppStat", ['name', 'hand_size', 'fours'])
-"""
-Stores the stat that a Player can see from their opponents.
-"""
+from util import *
 
 class Opponent:
-    def __init__(self) -> None:
+    """
+    Represents an opponent from the player's POV.
+    """
+
+    def __init__(self, stats: OppStat) -> None:
         """
         Represents an opponent player from the view of a player.
         This means certain data are not visible to the player.
-        """
-        self.name = ""
-        """
-        Name of the opp.
+        :param stats the stats of an opponent as seen from the player's POV.
         """
 
-        self.hand_size = ""
+        self.name = stats.name
         """
-        The opp's hand size.
+        Name of the player.
         """
-
-        self.fours = ""
-        """
-        The amount of fours the opp has.
-        """
-
-        self.hand = ""
+        
+        self.hand = create_cards_dict()
         """
         The cards in the player's hands.
+        """
+
+        self.hand_size = stats.hand_size
+        """
+        The amount of cards in the player's hand.
+        """
+
+        self.fours: Set[str] = stats.fours
+        """
+        The four of a kinds the player has collected.
+        This only stores the value of the four-of-a-kinds.
+        Ex: four 2s are stored as one 2 value in the set.
         """
 
     def update(self, stat: OppStat):
@@ -38,3 +42,13 @@ class Opponent:
         """
         for attr, value in stat.items():
             setattr(self, attr, value)
+
+    def has_card(self, card) -> bool:
+        """
+        Check whether the player has the asked card.
+        """
+        try:
+            return self.hand[card] > 0
+        except KeyError:
+            # invalid key => wrong card name
+            return False

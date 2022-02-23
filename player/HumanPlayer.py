@@ -1,14 +1,12 @@
 from colorama import Fore
 from player.Player import *
 
-from util import color_text
-
 class HumanPlayer(Player):
     """
     Represents a human player or just someone that can enter inputs through 
     the command line.
     """
-    def make_move(self, other_players: Tuple[VaguePlayerStat], deck_count: int) -> Move:
+    def make_move(self, other_players: Tuple[OppStat], deck_count: int) -> Move:
         names = []
         # show info to human player
         
