@@ -6,10 +6,6 @@ class OppAwareAI(RandomAI):
     Represents an AI that is aware of its opponents.
     Serve as the base class for more complex AI.
     """
-    def __init__(self, name: str) -> None:
-        super().__init__(name)
-
-
     def update_player_state(self, move: Move):
         """
         Update the state of the player based on a move.
