@@ -17,9 +17,16 @@ class OppAwareAI(RandomAI):
                 opp.remove_card(move.found_fours)
             # don't do anything else afterwards cause there's no need
             # a four of a kind removes all values like that from the game
+            return
+
+        # regardless whether the ask was successful, we know that player has at least
+        # 1 card of that value
+        # for now, just increment the card count whenever they ask for the card
+        if move.asker != self.name:
+            self.opponents[move.asker].give_cards(move.card)
 
         # only updates if ask was successful, else nothing happens
-        elif move.ask_succeed:
+        if move.ask_succeed:
             # check who ask for what => if it's us, don't need to update
             # since the Game updates us already and we know our own stats
             if move.asker != self.name:
@@ -27,16 +34,14 @@ class OppAwareAI(RandomAI):
                 
             if move.target != self.name:
                 self.opponents[move.target].remove_card(move.card)  
+            return
 
-        elif move.fish_succeed:
+        # here, we know that the ask didn't succeed
+
+        if move.fish_succeed:
             if move.asker != self.name:
                 self.opponents[move.asker].give_cards(move.card)
 
-        # regardless if ask or fish succeeded, the asker has the card they just
-        # asked for.
-        # for now, just increment the card count whenever they ask for the card
-        if move.asker != self.name:
-            self.opponents[move.asker].give_cards(move.card)
 
     def make_move(self, other_players: Tuple[OppStat], deck_count: int) -> Move:
         """
