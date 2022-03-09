@@ -8,6 +8,7 @@ from Deck import Deck
 from player.Player import Player
 from Move import Move
 
+
 class Game:
     def __init__(self, players: List[Player]) -> None:
         """
@@ -57,7 +58,6 @@ class Game:
         # start randomly each round
         self.cur_index = random.randint(0, len(self.players) - 1)
 
-
     def play(self, verbose=True):
         """
         Play the game.
@@ -73,8 +73,9 @@ class Game:
                 fours = None
                 if len(cur_player.fours) > 0:
                     fours = ", ".join(cur_player.fours)
-                print(f"{color_text(cur_player.name, Fore.CYAN)}'s fours-of-a-kinds are: {color_text(fours, Fore.GREEN)}.")
-                
+                print(
+                    f"{color_text(cur_player.name, Fore.CYAN)}'s fours-of-a-kinds are: {color_text(fours, Fore.GREEN)}.")
+
                 opps = [f"  -{str(opp)}" for opp in cur_player.opponents.values()]
                 formatted_opps = '\n'.join(opps)
                 print(f"Knowledge about opponents: {(formatted_opps)}")
@@ -119,11 +120,10 @@ class Game:
                 print(move, end='\n\n')
                 time.sleep(3)
 
-
             # update all the players on result of move
             for player in self.players:
                 player.update_player_state(move)
-            
+
             # if the player got the card they wanted, they can go again
             # else, turn pass to next player
             if not (move.fish_succeed or move.ask_succeed):
@@ -148,11 +148,11 @@ class Game:
         if len(winners) == 1:
             print(f"Congratulations! {color_text(winners[0].name, Fore.CYAN)} is the winner!")
         elif len(winners) > 1:
-            print(f"IT'S A TIE! Victory is shared between {color_text(', '.join([winner.name for winner in winners]), Fore.CYAN)}.")
+            print(
+                f"IT'S A TIE! Victory is shared between {color_text(', '.join([winner.name for winner in winners]), Fore.CYAN)}.")
         else:
             # this shouldn't happen
             print(f"NO WINNER!")
-        
 
     def is_game_ended(self) -> bool:
         """
@@ -189,4 +189,3 @@ class Game:
         for player in self.players:
             if player.name == name:
                 return player
-	

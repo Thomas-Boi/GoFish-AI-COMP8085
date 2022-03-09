@@ -5,14 +5,15 @@ import Game
 from player.HumanPlayer import HumanPlayer
 from player.RandomAI import RandomAI
 from player.OppAwareAI import OppAwareAI
-
+from player.SearchAI import SearchAI
 
 def main():
     colorama.init()
     # init the players
     players = [
         HumanPlayer("You"),
-        OppAwareAI("a")
+        #OppAwareAI("a")
+        SearchAI("Search Bot")
     ]
 
     # play the game
