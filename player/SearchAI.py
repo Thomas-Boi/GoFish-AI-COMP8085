@@ -1,12 +1,12 @@
 import math
 import random
 
-from typing import Union
+from typing import Union 
 from player.Opponent import *
-from player.RandomAI import *
+from player.OppAwareAI import *
 
 
-class SearchAI(RandomAI):
+class SearchAI(OppAwareAI):
     """
     An AI that makes moves based on a heuristic.
     This is based on the minimax algorithm to select the best move
@@ -36,7 +36,7 @@ class SearchAI(RandomAI):
 
         card_amounts = utility_hand.values()
         best_val = max(card_amounts)
-        best_card = max(utility_hand, key=utility_hand.get)
+        best_card = max(utility_hand, key=utility_hand.get) # type: ignore
 
         return best_card, best_val
 
@@ -52,5 +52,6 @@ class SearchAI(RandomAI):
             # temporary, will have to find the best with multiple opponents later
             return best_moves[0][0]
 
-        # if no best move found then return random move
+        # if no best move found then return a card that's both in
+        # our hand and the opponent's hand.
         return super().make_move(other_players, deck_count)

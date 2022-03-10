@@ -30,7 +30,8 @@ class Player:
 
         self.opponents: Dict[str, Opponent] = {}
         """
-        The player's opponents.
+        The player's opponents. Each Opponent contains a hand of cards
+        that can be used by the bots to track the cards in that player's hand.
         """
 
         self.deck_count = 0

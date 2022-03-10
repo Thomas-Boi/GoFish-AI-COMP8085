@@ -4,7 +4,15 @@ from player.Opponent import *
 class OppAwareAI(RandomAI):
     """
     Represents an AI that is aware of its opponents.
-    Serve as the base class for more complex AI.
+    This tracks the amount of cards that a player has in their hand.
+    This serves as the base class for more complex AI.
+
+    This only tracks the minimum amount of cards that the opponent has.
+    This is due to the unknown nature of asking. A player asking for a card
+    might have 1-3 cards of those values. However, we don't know the exact number.
+    The only time we know the exact number is when they successfully ask for a card
+    and the other player gave them those cards. We do not know when a card is gained
+    through fishing.
     """
     def update_player_state(self, move: Move):
         """
@@ -20,10 +28,15 @@ class OppAwareAI(RandomAI):
             return
 
         # regardless whether the ask was successful, we know that player has at least
-        # 1 card of that value
-        # for now, just increment the card count whenever they ask for the card
+        # 1 card of that value. 
         if move.asker != self.name:
-            self.opponents[move.asker].give_cards(move.card)
+            # if the card is not 0 (already counted), do nothing
+            # since we can't tell exactly how many cards are in that player's hand
+            # and can only track the minimum aka "at least" amount of that value
+            # in hand. Thus, if not tracked yet, add 1 to the card counter.
+            # Else, we aren't sure.
+            if not self.opponents[move.asker].has_card(move.card): 
+                self.opponents[move.asker].give_cards(move.card)
 
         # only updates if ask was successful, else nothing happens
         if move.ask_succeed:

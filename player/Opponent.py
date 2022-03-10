@@ -76,7 +76,7 @@ class Opponent:
         self.hand[card] = 0
 
     def __str__(self) -> str:
-        txt = f"{color_text(self.name, Fore.CYAN)} has {color_text(self.hand_size, Fore.CYAN)} cards: "
+        txt = f"{color_text(self.name, Fore.CYAN)} has {color_text(self.hand_size, Fore.CYAN)} cards with at least: "
         cards = []
         for value, amount in self.hand.items():
             if amount == 0:
