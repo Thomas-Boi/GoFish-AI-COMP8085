@@ -1,6 +1,7 @@
-from typing import Set 
+from typing import Set
 
 from util import *
+
 
 class Opponent:
     """
