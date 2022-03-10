@@ -57,18 +57,18 @@ class Move:
 
     def __str__(self) -> str:
         txt = f"{color_text(self.asker, Fore.CYAN)} asked {color_text(self.target, Fore.CYAN)} for {color_text(self.card, Fore.YELLOW)}."
-        succeed = 'successful' if self.ask_succeed else 'not successful'
-        txt += f"\nThe move was {color_text(succeed, Fore.YELLOW)} and {color_text(self.asker, Fore.CYAN)} got {color_text(self.amount, Fore.CYAN)} cards of value '{color_text(self.card, Fore.YELLOW)}'."
+        succeed = 'SUCCESS' if self.ask_succeed else 'FAILED'
+        txt += f"\n{color_text(succeed, Fore.YELLOW)}! {color_text(self.asker, Fore.CYAN)} got {color_text(self.amount, Fore.CYAN)} cards of value '{color_text(self.card, Fore.YELLOW)}'."
 
         # not succeeded => went fishing
         if not self.ask_succeed:
             txt += f"\n{color_text(self.asker, Fore.CYAN)} went fishing."
 
         if self.fish_succeed:
-            txt += f" It was successful and {color_text(self.asker, Fore.CYAN)} found a {color_text(self.card, Fore.YELLOW)}."
+            txt += f" SUCCESS! Found a {color_text(self.card, Fore.YELLOW)}."
 
         if self.found_fours:
-            txt += f"\n{color_text(self.asker, Fore.CYAN)} collected FOUR OF A KIND from {color_text(self.fours_source, Fore.CYAN)} for {color_text(self.found_fours, Fore.GREEN)}."
+            txt += f"\n{color_text(self.asker, Fore.CYAN)} collected a FOUR OF A KIND from {color_text(self.fours_source, Fore.CYAN)} for {color_text(self.found_fours, Fore.GREEN)}."
 
         if self.ask_succeed or self.fish_succeed:
             txt += f"\n{color_text(self.asker, Fore.CYAN)} will go again."

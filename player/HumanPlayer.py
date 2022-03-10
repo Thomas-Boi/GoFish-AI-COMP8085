@@ -1,10 +1,12 @@
 from colorama import Fore
-from Player import *
-
-from util import color_text
+from player.Player import *
 
 class HumanPlayer(Player):
-    def make_move(self, other_players: Tuple[OtherPlayerStat], deck_count: int) -> Move:
+    """
+    Represents a human player or just someone that can enter inputs through 
+    the command line.
+    """
+    def make_move(self, other_players: Tuple[OppStat], deck_count: int) -> Move:
         names = []
         # show info to human player
         
@@ -25,7 +27,7 @@ class HumanPlayer(Player):
             target = input("Enter the name of the player you want to get a card from: ")
 
         # ask for card
-        card = input(f"Enter the card you want to get from {target}: ")
+        card = input(f"Enter the card you want to get from {color_text(target, Fore.CYAN)}: ")
         print('\n')
 
         return Move(self.name, target, card.upper()) # upper input to save typing time

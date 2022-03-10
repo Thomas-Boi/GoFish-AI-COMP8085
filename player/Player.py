@@ -1,51 +1,43 @@
 from colorama import Fore
-from typing import Dict, Set, Tuple
-from collections import namedtuple
+from typing import Set, Tuple
 
-import util
+from util import *
+from player.Opponent import *
 from Move import Move
 
-OtherPlayerStat = namedtuple("OtherPlayerStat", ['name', 'hand_size', 'fours'])
-"""
-Stores the stat that this play can see from other players.
-"""
-
 class Player:
+    """
+    An abstract player class that represents human or computer players.
+    """
 
     def __init__(self, name: str) -> None:
-        """
-        An abstract player class that represents human or computer players.
-        """
         self.name = name
         """
         Name of the player.
         """
         
-        self.hand = Player.create_cards_dict()
+        self.hand = create_cards_dict()
         """
         The cards in the player's hands.
         """
 
-        self.fours_of_a_kind: Set[str] = set()
+        self.fours: Set[str] = set()
         """
         The four of a kinds the player has collected.
         This only stores the value of the four-of-a-kinds.
         Ex: four 2s are stored as one 2 value in the set.
         """
 
-    @staticmethod
-    def create_cards_dict(amount=0) -> Dict[str, int]:
+        self.opponents: Dict[str, Opponent] = {}
         """
-        Create an empty dictionary containing the values (2, 3, J, Q, etc.)
-        of a card as keys and the amount of it as values.
-        :param amount, the default amount of each cards.
+        The player's opponents. Each Opponent contains a hand of cards
+        that can be used by the bots to track the cards in that player's hand.
         """
-        cards = {}
-        for i in util.card_values:
-            cards[i] = amount
 
-        return cards
-
+        self.deck_count = 0
+        """
+        Size of the deck.
+        """
 
     def has_card(self, card) -> bool:
         """
@@ -102,14 +94,12 @@ class Player:
         """
         # got 4 of a kind
         if self.hand[card] == 4:
-            self.fours_of_a_kind.add(card)
+            self.fours.add(card)
             self.hand[card] = 0
             return True
 
         return False
         
-
-    # NEED IMPLEMENTATIONS HERE
 
     def get_stats_as_seen_from_opp(self):
         """
@@ -117,13 +107,13 @@ class Player:
         POV. This means they can see the player's name, hand count
         and four-of-a-kinds player already collected.
         """
-        return OtherPlayerStat(self.name, self.get_hand_size(), list(self.fours_of_a_kind))
+        return OppStat(self.name, self.get_hand_size(), list(self.fours))
 
     def get_hands_detailed(self) -> str:
         """
         Get the player's hand in all details. This shows ALL the values so use carefully.
         """
-        txt = f"{util.color_text(self.name, Fore.CYAN)}'s hand: "
+        txt = f"{color_text(self.name, Fore.CYAN)}'s hand: "
         cards = []
         for value, amount in self.hand.items():
             if amount == 0:
@@ -136,14 +126,15 @@ class Player:
         return txt
 
 
-    def set_initial_state(self, cards_per_player: int, player_amounts: int, deck_count: int):
+    def set_initial_state(self, opps: Tuple[OppStat], deck_count: int):
         """
         Set the initial state of the player.
-        :param cards_per_player, the amount of cards in each player's hands.
-        :param player_amounts, the amount of players in the game (including ourselves.).
+        :param opps, the opponents of this player in the game.
         :param deck_count, the amount of cards in the deck.
         """
-        pass
+        for opp in opps:
+            self.opponents[opp.name] = Opponent(opp)
+        self.deck_count = deck_count
 
 
     def update_player_state(self, move: Move):
@@ -153,7 +144,7 @@ class Player:
         pass
 
 
-    def make_move(self, other_players: Tuple[OtherPlayerStat], deck_count: int) -> Move:
+    def make_move(self, opps: Tuple[OppStat], deck_count: int) -> Move:
         """
         Make a move and ask a player for a card.
         :return a tuple of target player, which is a number, and a card
