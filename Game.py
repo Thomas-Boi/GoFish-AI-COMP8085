@@ -5,21 +5,38 @@ import time
 
 from util import color_text
 from Deck import Deck
-from Player import Player
+from player.Player import Player
 from Move import Move
 
+
 class Game:
-    def __init__(self, players: List[Player]=[]) -> None:
+    def __init__(self, players: List[Player]) -> None:
         """
         Represents a GoFish game. This game follows the standard
         Go Fish rules laid out here: https://www.officialgamerules.org/go-fish
         :param a list of players that will be playing the game.
         """
+        if len(players) < 2:
+            raise ValueError("Requires at least 2 players to play Go Fish.")
+
         self.deck = Deck()
+        """
+        The deck.
+        """
+
         self.players = players
+        """
+        The players in the game.
+        """
+
         self.cur_index = 0
         """
         The index of the player who's making a move.
+        """
+
+        self.winners = []
+        """
+        Track the winners in the game.
         """
 
         self.__init_game()
@@ -37,13 +54,14 @@ class Game:
             for card in hand:
                 player.give_cards(card)
 
+        for player in self.players:
             # update the players on the state of the board starting out
-            player.set_initial_state(initial_hands_count, len(self.players), len(self.deck.cards))
+            opps = self.get_stats_from_opponents(player)
+            player.set_initial_state(opps, len(self.deck.cards))
 
         # shuffle the cur_index so player who goes first
         # start randomly each round
         self.cur_index = random.randint(0, len(self.players) - 1)
-
 
     def play(self, verbose=True, slow=True):
         """
@@ -55,19 +73,22 @@ class Game:
         while not self.is_game_ended():
             cur_player = self.players[self.cur_index]
             if verbose:
+                print("-------")
                 print(f"It's {color_text(cur_player.name, Fore.CYAN)}'s turn.")
                 print(cur_player.get_hands_detailed())
                 fours = None
-                if len(cur_player.fours_of_a_kind) > 0:
-                    fours = ", ".join(cur_player.fours_of_a_kind)
-                print(f"{color_text(cur_player.name, Fore.CYAN)}'s fours-of-a-kinds are: {color_text(fours, Fore.GREEN)}.", end='\n\n')
+                if len(cur_player.fours) > 0:
+                    fours = ", ".join(cur_player.fours)
+                print(
+                    f"{color_text(cur_player.name, Fore.CYAN)}'s fours-of-a-kinds are: {color_text(fours, Fore.GREEN)}.")
+
+                opps = [f"  -{str(opp)}" for opp in cur_player.opponents.values()]
+                formatted_opps = '\n'.join(opps)
+                print(f"Knowledge about opponents: {(formatted_opps)}")
+                print("\n")
 
             # cur player will decide who to ask and what to ask for
-            other_players = []
-            for i in range(len(self.players)):
-                if i == self.cur_index:
-                    continue
-                other_players.append(self.players[i].get_stats_as_seen_from_opp())
+            other_players = self.get_stats_from_opponents(self.players[self.cur_index])
 
             # check to ensure players picked the right card and target
             move = cur_player.make_move(tuple(other_players), len(self.deck.cards))
@@ -81,7 +102,6 @@ class Game:
                 print(f"Invalid target name {color_text(move.target, Fore.RED)}! Must choose a player within the game.")
                 continue
 
-            fish = None
             if target.has_card(move.card):
                 # get a card
                 amount = target.get_cards(move.card)
@@ -89,55 +109,60 @@ class Game:
                 if cur_player.check_for_fours_in_hand(move.card):
                     move.found_fours = move.card
                     move.fours_source = Move.ASKING
-                move.succeed = True
+                move.ask_succeed = True
                 move.amount = amount
             else:
                 # GO FISH
                 fish = self.deck.go_fish()
                 cur_player.give_cards(fish)
+                if fish == move.card:
+                    move.fish_succeed = True
+
                 if cur_player.check_for_fours_in_hand(fish):
                     move.found_fours = fish
                     move.fours_source = Move.FISHING
-                move.succeed = False
 
             if verbose:
                 print(move, end='\n\n')
-
+                if slow: time.sleep(3)
 
             # update all the players on result of move
             for player in self.players:
                 player.update_player_state(move)
-            
-            # turn pass to the next player IF the move was unsuccessful
-            # else, the player can continue to go
-            time.sleep(3)
-            if not move.succeed:
+
+            # if the player got the card they wanted, they can go again
+            # else, turn pass to next player
+            if not (move.fish_succeed or move.ask_succeed):
                 self.cur_index = (self.cur_index + 1) % len(self.players)
 
+        # loop ended => see who's the winner        
         condition = "A player emptied their hands!"
         if len(self.deck.cards) == 0:
             condition = "The deck is emptied!"
-        print(f"{color_text('GAME ENDED', Fore.YELLOW)}: {color_text(condition, Fore.YELLOW)} Finding the winner...")
-        # loop ended => see who's the winner        
-        # in case of a tie
+        if verbose:
+            print(f"{color_text('GAME ENDED', Fore.YELLOW)}: {color_text(condition, Fore.YELLOW)} Finding the winner...")
+
         winners = []
         winnerAmount = -1
         for player in self.players:
-            amount = len(player.fours_of_a_kind)
+            amount = len(player.fours)
             if amount > winnerAmount:
                 winners = [player]
                 winnerAmount = amount
             elif amount == winnerAmount:
                 winners.append(player)
 
-        if len(winners) == 1:
-            print(f"Congratulations! {color_text(winners[0].name, Fore.CYAN)} is the winner!")
-        elif len(winners) > 1:
-            print(f"IT'S A TIE! Victory is shared between {color_text(', '.join([winner.name for winner in winners]), Fore.CYAN)}.")
-        else:
-            # this shouldn't happen
-            print(f"NO WINNER!")
+        if verbose:
+            if len(winners) == 1:
+                print(f"Congratulations! {color_text(winners[0].name, Fore.CYAN)} is the winner!")
+            elif len(winners) > 1:
+                print(
+                    f"IT'S A TIE! Victory is shared between {color_text(', '.join([winner.name for winner in winners]), Fore.CYAN)}.")
+            else:
+                # this shouldn't happen
+                print(f"NO WINNER!")
         
+        self.winners = winners
 
     def is_game_ended(self) -> bool:
         """
@@ -153,6 +178,18 @@ class Game:
 
         return False
 
+    def get_stats_from_opponents(self, player: Player):
+        """
+        Get the stats of the player's opponents.
+        :param player the player.
+        """
+        opps = []
+        for a_player in self.players:
+            # skip the own player
+            if player.name == a_player.name:
+                continue
+            opps.append(a_player.get_stats_as_seen_from_opp())
+        return tuple(opps)
 
     def get_player_by_name(self, name: str) -> Union[Player, None]:
         """
@@ -162,4 +199,3 @@ class Game:
         for player in self.players:
             if player.name == name:
                 return player
-	
