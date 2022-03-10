@@ -34,6 +34,11 @@ class Game:
         The index of the player who's making a move.
         """
 
+        self.winners = []
+        """
+        Track the winners in the game.
+        """
+
         self.__init_game()
 
     def __init_game(self):
@@ -133,7 +138,8 @@ class Game:
         condition = "A player emptied their hands!"
         if len(self.deck.cards) == 0:
             condition = "The deck is emptied!"
-        print(f"{color_text('GAME ENDED', Fore.YELLOW)}: {color_text(condition, Fore.YELLOW)} Finding the winner...")
+        if verbose:
+            print(f"{color_text('GAME ENDED', Fore.YELLOW)}: {color_text(condition, Fore.YELLOW)} Finding the winner...")
 
         winners = []
         winnerAmount = -1
@@ -145,14 +151,17 @@ class Game:
             elif amount == winnerAmount:
                 winners.append(player)
 
-        if len(winners) == 1:
-            print(f"Congratulations! {color_text(winners[0].name, Fore.CYAN)} is the winner!")
-        elif len(winners) > 1:
-            print(
-                f"IT'S A TIE! Victory is shared between {color_text(', '.join([winner.name for winner in winners]), Fore.CYAN)}.")
-        else:
-            # this shouldn't happen
-            print(f"NO WINNER!")
+        if verbose:
+            if len(winners) == 1:
+                print(f"Congratulations! {color_text(winners[0].name, Fore.CYAN)} is the winner!")
+            elif len(winners) > 1:
+                print(
+                    f"IT'S A TIE! Victory is shared between {color_text(', '.join([winner.name for winner in winners]), Fore.CYAN)}.")
+            else:
+                # this shouldn't happen
+                print(f"NO WINNER!")
+        
+        self.winners = winners
 
     def is_game_ended(self) -> bool:
         """

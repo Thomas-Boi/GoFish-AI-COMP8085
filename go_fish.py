@@ -9,16 +9,31 @@ from player.SearchAI import SearchAI
 
 def main():
     colorama.init()
-    # init the players
-    players = [
-        # HumanPlayer("You"),
-        OppAwareAI("a"),
-        SearchAI("Search Bot")
-    ]
+    players_config = {
+        # "Random": RandomAI,
+        # "You": HumanPlayer,
+        "OppAware": OppAwareAI,
+        "SearchAI": SearchAI
+    }
+    result = { key:0 for key in players_config}
+    result["Tie"] = 0
+    result["Total"] = 0
 
     # play the game
-    game = Game.Game(players)
-    game.play(False)
+    for i in range(1):
+        players = [constructor(name) for name, constructor in players_config.items()]
+
+        game = Game.Game(players)
+        game.play()
+        result["Total"] += 1
+
+        if len(game.winners) > 1:
+            result["Tie"] += 1
+        else:
+            result[game.winners[0].name] += 1 
+
+    print("\nRESULT")
+    print(result)
 
 if __name__ == "__main__":
     # use a main method wrapper so we can use function
