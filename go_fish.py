@@ -11,14 +11,14 @@ def main():
     colorama.init()
     # init the players
     players = [
-        HumanPlayer("You"),
-        #OppAwareAI("a")
+        # HumanPlayer("You"),
+        OppAwareAI("a"),
         SearchAI("Search Bot")
     ]
 
     # play the game
     game = Game.Game(players)
-    game.play()
+    game.play(False)
 
 if __name__ == "__main__":
     # use a main method wrapper so we can use function
