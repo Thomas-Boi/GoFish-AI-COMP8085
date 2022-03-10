@@ -63,7 +63,7 @@ class Game:
         # start randomly each round
         self.cur_index = random.randint(0, len(self.players) - 1)
 
-    def play(self, verbose=True):
+    def play(self, verbose=True, slow=True):
         """
         Play the game.
         :param verbose, whether to print out extra info in the game.
@@ -73,6 +73,7 @@ class Game:
         while not self.is_game_ended():
             cur_player = self.players[self.cur_index]
             if verbose:
+                print("-------")
                 print(f"It's {color_text(cur_player.name, Fore.CYAN)}'s turn.")
                 print(cur_player.get_hands_detailed())
                 fours = None
@@ -123,7 +124,7 @@ class Game:
 
             if verbose:
                 print(move, end='\n\n')
-                time.sleep(3)
+                if slow: time.sleep(3)
 
             # update all the players on result of move
             for player in self.players:
