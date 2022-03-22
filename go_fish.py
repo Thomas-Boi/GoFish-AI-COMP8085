@@ -12,7 +12,6 @@ def ai_play():
     """
     Create play sessions intended for AI development and training.
     """
-    colorama.init()
     players_config = {
         # "Random": RandomAI,
         # "Random1": RandomAI,
@@ -48,22 +47,24 @@ def ai_play():
     percentage = {key: "{:.2f}%".format(val / result["Total"] * 100) for key, val in result.items()}
     print(percentage)
 
-def human_play():
+def human_play(opp_amount: int, opp_type: int):
     """
     Create a Go Fish game where a human player plays against
     1-3 bot players.
+    :param opp_amount: the amount of opponents the player will have.
+    :param opp_type: 1 is for a RandomAI, 2 is for an OppAwareAI,
+    3 is for a SearchAI.
     """
-    colorama.init()
-    players_config = {
-        # "Random": RandomAI,
-        # "Random1": RandomAI,
-        # "Random2": RandomAI,
-        "You": HumanPlayer,
-        "OppAware1": OppAwareAI,
-        "OppAware2": OppAwareAI,
-        "OppAware3": OppAwareAI
-    }
-    players = [constructor(name) for name, constructor in players_config.items()]
+    players = [HumanPlayer("You")]
+    opponent_types = [
+        RandomAI,
+        OppAwareAI,
+        SearchAI
+    ]
+    names = ["a", "b", "c"]
+
+    for i in range(opp_amount):
+        players.append(opponent_types[opp_type - 1](names[i]))
 
     game = Game.Game(players)
     game.play(True, True, True)
@@ -71,5 +72,21 @@ def human_play():
 if __name__ == "__main__":
     # use a main method wrapper so we can use function
     # hoisting
-    # ai_play()
-    human_play()
+    colorama.init()
+    argparser = ArgumentParser(description="A Go Fish environment that can be used for a simple game or an AI training environment.")
+    
+    argparser.add_argument("--play", help="Whether to go into play mode. Default is false (AI mode)",
+        action='store_true')
+
+    argparser.add_argument("--amount", help="The amount of enemies the player is playing against. Must be in play mode for this to count. ",
+        type=int, choices=range(1, 4)) # only 1-3 opponents
+
+    argparser.add_argument("--type", help="The type of enemy. 1 for RandomAI, 2 for OppAwareAI, 3 for SearchAI.", 
+        type=int, choices=range(1, 4), default=2) # default is a medium bot.
+
+    args = argparser.parse_args()
+
+    if args.play:
+        human_play(args.amount, args.type)
+    else:
+        ai_play()
