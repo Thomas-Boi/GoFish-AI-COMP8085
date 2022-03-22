@@ -72,6 +72,14 @@ class Game:
         """
         if verbose:
             print(color_text("Starting The Game...", Fore.YELLOW))
+
+        
+        # before we start, check if anyone got 4 of a kind
+        for player in self.players:
+            has_four = player.check_for_fours_in_hand()
+            if has_four:
+                print(f"{color_text('LUCKY', Fore.YELLOW)}! Player {color_text(player.name, Fore.CYAN)} found a four-of-a-kind at the start!")
+                
         while not self.is_game_ended():
             cur_player = self.players[self.cur_index]
             if verbose:
