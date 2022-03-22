@@ -63,10 +63,12 @@ class Game:
         # start randomly each round
         self.cur_index = random.randint(0, len(self.players) - 1)
 
-    def play(self, verbose=True, slow=True):
+    def play(self, verbose=True, slow=True, human_mode=False):
         """
         Play the game.
         :param verbose, whether to print out extra info in the game.
+        :param slow, whether to wait after a move for the user to catch up with the game.
+        :param human_mode, whether to print out the hand of non-human opponents.
         """
         if verbose:
             print(color_text("Starting The Game...", Fore.YELLOW))
@@ -75,17 +77,26 @@ class Game:
             if verbose:
                 print("-------")
                 print(f"It's {color_text(cur_player.name, Fore.CYAN)}'s turn.")
-                print(cur_player.get_hands_detailed())
+
+                if human_mode:
+                    # only print if it's our hand
+                    if cur_player.__class__.__name__ == "HumanPlayer":
+                        print(cur_player.get_hands_detailed())
+                else:
+                    # else, just print out so we can track what the AI has
+                    print(cur_player.get_hands_detailed())
+
                 fours = None
                 if len(cur_player.fours) > 0:
                     fours = ", ".join(cur_player.fours)
-                print(
-                    f"{color_text(cur_player.name, Fore.CYAN)}'s fours-of-a-kinds are: {color_text(fours, Fore.GREEN)}.")
+                print(f"{color_text(cur_player.name, Fore.CYAN)}'s fours-of-a-kinds are: {color_text(fours, Fore.GREEN)}.")
 
-                opps = [f"  -{str(opp)}" for opp in cur_player.opponents.values()]
-                formatted_opps = '\n'.join(opps)
-                print(f"Knowledge about opponents: {(formatted_opps)}")
-                print("\n")
+                # humans don't need to know this
+                if not human_mode:
+                    opps = [f"  -{str(opp)}" for opp in cur_player.opponents.values()]
+                    formatted_opps = '\n'.join(opps)
+                    print(f"Knowledge about opponents: \n{(formatted_opps)}")
+                    print("\n")
 
             # cur player will decide who to ask and what to ask for
             other_players = self.get_stats_from_opponents(self.players[self.cur_index])
@@ -124,7 +135,7 @@ class Game:
 
             if verbose:
                 print(move, end='\n\n')
-                if slow: time.sleep(3)
+                if slow: time.sleep(4)
 
             # update all the players on result of move
             for player in self.players:

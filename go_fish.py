@@ -1,4 +1,5 @@
 import colorama
+from argparse import ArgumentParser
 
 
 import Game
@@ -7,7 +8,10 @@ from player.RandomAI import RandomAI
 from player.OppAwareAI import OppAwareAI
 from player.SearchAI import SearchAI
 
-def main():
+def ai_play():
+    """
+    Create play sessions intended for AI development and training.
+    """
     colorama.init()
     players_config = {
         # "Random": RandomAI,
@@ -44,7 +48,28 @@ def main():
     percentage = {key: "{:.2f}%".format(val / result["Total"] * 100) for key, val in result.items()}
     print(percentage)
 
+def human_play():
+    """
+    Create a Go Fish game where a human player plays against
+    1-3 bot players.
+    """
+    colorama.init()
+    players_config = {
+        # "Random": RandomAI,
+        # "Random1": RandomAI,
+        # "Random2": RandomAI,
+        "You": HumanPlayer,
+        "OppAware1": OppAwareAI,
+        "OppAware2": OppAwareAI,
+        "OppAware3": OppAwareAI
+    }
+    players = [constructor(name) for name, constructor in players_config.items()]
+
+    game = Game.Game(players)
+    game.play(True, True, True)
+
 if __name__ == "__main__":
     # use a main method wrapper so we can use function
     # hoisting
-    main()
+    # ai_play()
+    human_play()
