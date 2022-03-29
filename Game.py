@@ -76,7 +76,11 @@ class Game:
         
         # before we start, check if anyone got 4 of a kind
         for player in self.players:
-            has_four = player.check_for_fours_in_hand()
+            player_hand = player.hand
+            has_four = False
+            for card in player_hand:
+                has_four = player.check_for_fours_in_hand(card)
+
             if has_four:
                 print(f"{color_text('LUCKY', Fore.YELLOW)}! Player {color_text(player.name, Fore.CYAN)} found a four-of-a-kind at the start!")
                 

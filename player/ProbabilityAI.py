@@ -100,7 +100,7 @@ class ProbabilityAI(OppAwareAI):
         # fill out opp_name properly later
         return Move(self.name, opponent.name, highest_prob_card) 
 
-    def check_prob(self, card: str, opp: Opponent, opponents: Tuple[OppStat], deck_count: int):
+    def check_prob(self, card: str, opp: Opponent, opponents: Tuple[OppStat], deck_count: int) -> float:
         """
         Check the probability for a card to be in the opponent's hand.
         :param card: the card we are checking.
@@ -110,7 +110,8 @@ class ProbabilityAI(OppAwareAI):
         """
         pass
 
-    def find_prob_of_card(self, card: str, amount_of_cards: int, total_amount_of_cards: int, hand_size: int, deck_size: int):
+    def find_prob_of_card(self, card: str, amount_of_cards: int, total_amount_of_cards: int,
+                          hand_size: int, deck_size: int) -> float:
         """
         """
         pass
