@@ -72,4 +72,4 @@ class OppAwareAI(RandomAI):
                         
         # for loop is done but didn't see the return => we didn't find a card
         # => default to RandomAI's random move
-        return super().make_move(other_players, deck_count)
+        return self.make_random_move(other_players)

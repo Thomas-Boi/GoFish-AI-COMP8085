@@ -33,4 +33,5 @@ def create_cards_dict(amount=0) -> Dict[str, int]:
 OppStat = namedtuple("OppStat", ['name', 'hand_size', 'fours'])
 """
 Stores the stat that a Player can see from their opponents.
+Contain a "name", a "hand_size", and the "fours" they have collected.
 """

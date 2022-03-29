@@ -6,6 +6,9 @@ class RandomAI(Player):
     An AI that makes random moves.
     """
     def make_move(self, other_players: Tuple[OppStat], deck_count: int) -> Move:
+        return self.make_random_move(other_players)
+
+    def make_random_move(self, other_players: Tuple[OppStat]):
         # pick a random player 
         target = random.choice(other_players)
 
