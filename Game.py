@@ -147,7 +147,7 @@ class Game:
 
             if verbose:
                 print(move, end='\n\n')
-                if slow: time.sleep(4)
+                if slow: time.sleep(2)
 
             # update all the players on result of move
             for player in self.players:
