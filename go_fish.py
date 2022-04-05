@@ -8,6 +8,7 @@ from player.RandomAI import RandomAI
 from player.OppAwareAI import OppAwareAI
 from player.SearchAI import SearchAI
 from player.ProbabilityAI import ProbabilityAI
+from player.NeuralNetPlayer import NeuralNetPlayer
 
 def ai_play():
     """
@@ -72,6 +73,58 @@ def human_play(opp_amount: int, opp_type: int):
 
     game = Game.Game(players)
     game.play(True, True, True)
+
+def neural_net_train():
+    """
+    Create play sessions intended for AI development and training.
+    """
+    # player configs
+    players_config = {
+        # "Random": RandomAI,
+        # "Random1": RandomAI,
+        # "Random2": RandomAI,
+        "Bot": NeuralNetPlayer
+    }
+
+    # training hyperparameters
+    learning_rate = 0.0005
+    hidden_layer_size = 128 # this is our memory
+    n_iters = 100000 # number of 'epoch' however, since we aren't looping through a dataset, it's called iterations
+    # print_every = 5000
+    # plot_every = 500
+
+    # result tracking
+    result = {key: 0 for key in players_config}
+    result["Tie"] = 0
+    result["Total"] = 0
+
+    # play the game
+    for i in range(100):
+        players = [constructor(name) for name, constructor in players_config.items()]
+
+        game = Game.Game(players)
+        game.play(False, slow=False)
+        result["Total"] += 1
+
+        # two ways to approach this:
+        # update the AI after a game and get the successful ask out of all asks at the end (e.g 20 / 40 ask success rate)
+        # OR
+        # update the AI after every round that it asked a question -> have to modify the play() 
+
+        # both are relatively easy to make. Don't know which one is better
+
+        if len(game.winners) > 1:
+            result["Tie"] += 1
+        else:
+            result[game.winners[0].name] += 1 
+
+    print("\nRESULT")
+    print(result)
+    
+    print("\nRESULT PERCENTAGE")
+    percentage = {key: "{:.2f}%".format(val / result["Total"] * 100) for key, val in result.items()}
+    print(percentage)
+
 
 if __name__ == "__main__":
     # use a main method wrapper so we can use function
