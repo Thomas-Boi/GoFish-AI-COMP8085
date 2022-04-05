@@ -25,7 +25,8 @@ def ai_play():
         # "OppAware4": OppAwareAI,
         # "SearchAI": SearchAI
         "You": HumanPlayer,
-        "Prob-Bot": ProbabilityAI
+        #"Prob-Bot": ProbabilityAI,
+        "NeuralNet": NeuralNetPlayer
     }
     result = {key: 0 for key in players_config}
     result["Tie"] = 0
@@ -64,9 +65,10 @@ def human_play(opp_amount: int, opp_type: int):
         RandomAI,
         OppAwareAI,
         SearchAI,
-        ProbabilityAI
+        ProbabilityAI,
+        NeuralNetPlayer
     ]
-    names = ["a", "b", "c", "d"]
+    names = ["a", "b", "c", "d", "e"]
 
     for i in range(opp_amount):
         players.append(opponent_types[opp_type - 1](names[i]))
@@ -80,7 +82,7 @@ def neural_net_train():
     """
     # player configs
     players_config = {
-        # "Random": RandomAI,
+        "Random": RandomAI,
         # "Random1": RandomAI,
         # "Random2": RandomAI,
         "Bot": NeuralNetPlayer
@@ -137,11 +139,11 @@ if __name__ == "__main__":
 
     argparser.add_argument("--amount", help="The amount of enemies the player is playing against. "
                                             "Must be in play mode for this to count. ",
-        type=int, choices=range(1, 5), default=1) # only 1-3 opponents
+        type=int, choices=range(1, 4), default=1) # only 1-3 opponents
 
     argparser.add_argument("--type", help="The type of enemy. 1 for RandomAI, 2 for OppAwareAI, "
-                                          "3 for SearchAI, 4 for ProbabilityAI",
-        type=int, choices=range(1, 5), default=2) # default is a medium bot.
+                                          "3 for SearchAI, 4 for ProbabilityAI, 5 for NeuralNetAI",
+        type=int, choices=range(1, 6), default=5) # default is a medium bot.
 
     args = argparser.parse_args()
 

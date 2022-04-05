@@ -1,5 +1,6 @@
 import torch.nn as nn
 import torch
+
 # TODO
 # training function (feed data into update loop)
 # update loop (play 1 game, get the loss, backpropagate)
