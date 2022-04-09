@@ -19,14 +19,14 @@ def gather_data():
     players_config = {
         "Opp1": OppAwareAI,
         "Opp2": OppAwareAI,
-        # "Opp3": OppAwareAI,
+        "Opp3": OppAwareAI,
         "NeuralNet": NeuralNetPlayer
     }
     result = {key: 0 for key in players_config}
     result["Tie"] = 0
     result["Total"] = 0
 
-    # TODO: run for 15 mins each - 1v1, 1v2, 1v3
+    # run for 15 mins each - 1v1, 1v2, 1v3
     # recording times here for now
     # 1 opp: 2 mins, 13 mins
     # make backup of file at this point just in case
@@ -212,5 +212,4 @@ if __name__ == "__main__":
     if args.play:
         human_play(args.amount, args.type)
     else:
-        #ai_play()
-        gather_data()
+        ai_play()

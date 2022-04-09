@@ -29,10 +29,6 @@ DATABASE = Database()
 class NeuralNetPlayer(OppAwareAI):
     def __init__(self, name: str) -> None:
         super().__init__(name)
-
-        self.gathering_data = True
-        self.check = 0
-
         # initial input size:
         # number of card types in own hand(1x13) 
         # + number of card types from one opponent (1x13)
@@ -45,7 +41,7 @@ class NeuralNetPlayer(OppAwareAI):
         INPUT_SIZE = 55
         OUTPUT_SIZE = 13
         self.network = NeuralNetworkAI(INPUT_SIZE, OUTPUT_SIZE)
-
+        self.gathering_data = False
 
     def make_move(self, other_players: Tuple[OppStat], deck_count: int) -> Move:
         self_hand_tensor = self.create_self_hand_tensor()
@@ -98,6 +94,7 @@ class NeuralNetPlayer(OppAwareAI):
             if final_result["successful_ask"]:
                 DATABASE.append_row(final_result)
             return move
+
         return Move(self.name, opp_to_choose, best_card)
 
     def get_move_result(self, inputs: Dict, move: Move):
