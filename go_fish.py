@@ -18,7 +18,7 @@ def gather_data():
     """ Play games for x time to collect training data """
     players_config = {
         "Opp1": OppAwareAI,
-        # "Opp2": OppAwareAI,
+        "Opp2": OppAwareAI,
         # "Opp3": OppAwareAI,
         "NeuralNet": NeuralNetPlayer
     }
@@ -26,10 +26,18 @@ def gather_data():
     result["Tie"] = 0
     result["Total"] = 0
 
-    # TODO: run for an hour each - 1v1, 1v2, 1v3
+    # TODO: run for 15 mins each - 1v1, 1v2, 1v3
+    # recording times here for now
+    # 1 opp: 2 mins, 13 mins
+    # make backup of file at this point just in case
+    # 2 opps: 15 mins
+    # 3 opps: 15 mins
+
+    # read the data into dataframe
+    DATABASE.read_csv()
 
     # play the game
-    end_time = datetime.datetime.now() + datetime.timedelta(minutes=30)
+    end_time = datetime.datetime.now() + datetime.timedelta(minutes=15)
     while True:
         if datetime.datetime.now() >= end_time:
             break
@@ -44,7 +52,6 @@ def gather_data():
             result["Tie"] += 1
         else:
             result[game.winners[0].name] += 1
-
 
     # write the resulting data to the csv
     DATABASE.write_csv()
@@ -77,11 +84,6 @@ def ai_play():
     result = {key: 0 for key in players_config}
     result["Total"] = 0
 
-    # TODO: run for an hour each - 1v1, 1v2, 1v3
-
-    # read the csv data
-    # DATABASE.read_csv()
-
     # play the game
     start_time = time.time()
     rounds = 100
@@ -98,9 +100,6 @@ def ai_play():
             result[key_name] = val + 1
         else:
             result[game.winners[0].name] += 1
-
-    # write the resulting data to the csv
-    # DATABASE.write_csv()
 
     end_time = time.time()
 

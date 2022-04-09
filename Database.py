@@ -22,7 +22,6 @@ class Database():
     def read_csv(self):
         try:
             self.main_df = pd.read_csv("rounds_data.csv")
-            #self.data_list = self.main_df.to_dict('records')
         except (OSError, IOError) as e:
             self.main_df = pd.DataFrame(columns=COLUMN_NAMES)
 

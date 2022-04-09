@@ -1,2 +1,5 @@
 # intellij configs
 .idea/
+
+# Large data files
+*.csv
