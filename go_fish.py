@@ -143,7 +143,7 @@ if __name__ == "__main__":
 
     argparser.add_argument("--type", help="The type of enemy. 1 for RandomAI, 2 for OppAwareAI, "
                                           "3 for SearchAI, 4 for ProbabilityAI, 5 for NeuralNetAI",
-        type=int, choices=range(1, 6), default=5) # default is a medium bot.
+        type=int, choices=range(1, 6), default=5) # default is a neural net bot.
 
     args = argparser.parse_args()
 

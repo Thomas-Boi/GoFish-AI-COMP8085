@@ -3,6 +3,8 @@ import random
 
 import util
 
+DECK_SIZE = 52
+SUITS = 4
 
 class Deck:
     def __init__(self):	
@@ -15,7 +17,7 @@ class Deck:
         Cards in the deck.
         """
         for card in util.card_values:
-            for time in range(4):
+            for time in range(SUITS):
                 self.cards.append(card)
     
         random.shuffle(self.cards)

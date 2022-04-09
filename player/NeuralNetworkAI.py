@@ -14,40 +14,36 @@ from typing import List
 class NeuralNetworkAI(nn.Module):
     def __init__(self, input_size, output_size):
         super().__init__()
-        # stats
-        self.input_size = input_size
-        self.output_size = output_size
-
-        # what kind of input do we want?
-        # player's hand (exactly what cards we have)
-        # cards that the we know the opponent has (for each opponent)
-        # 
-        
         # layers
+        # first is a tanh
+        self.tanh = nn.Tanh()
+        # then a linear layer that narrows down to 13
         self.m1 = nn.Linear(input_size, output_size)
-        self.softmax = nn.LogSoftmax(dim=-1)
+        self.softmax = nn.LogSoftmax(dim=0)
     
     def forward(self, self_hand_tensor: torch.Tensor, 
-        opp_hand_cards: List[torch.Tensor], 
-        opp_hand_sizes: List[torch.Tensor], 
-        fours: List[torch.Tensor], deck_size_tensor: torch.Tensor) -> torch.Tensor:
+        opp_hand_cards: torch.Tensor, 
+        opp_hand_sizes: torch.Tensor, 
+        others_hand_cards: torch.Tensor, 
+        others_hand_sizes: torch.Tensor, 
+        fours: torch.Tensor, deck_size_tensor: torch.Tensor) -> torch.Tensor:
         """
         """
         tensors = [self_hand_tensor]
-        tensors.extend(opp_hand_cards)
-        tensors.extend(opp_hand_sizes)
-        tensors.extend(fours)
+        tensors.append(opp_hand_cards)
+        tensors.append(opp_hand_sizes)
+        tensors.append(others_hand_cards)
+        tensors.append(others_hand_sizes)
+        tensors.append(fours)
         tensors.append(deck_size_tensor)
 
         # recall each we want to make a long tensor of size 1 X inputSize from the input
         # dim = 0 is row, dim = 1 is column
         # for tensor in tensors:
         #     print(tensor.shape)
-        concated_input = torch.cat(tensors, dim=1)
+        concated_input = torch.cat(tensors)
         # print(concated_input.shape)
 
-        output = self.m1(concated_input)
+        result = self.tanh(concated_input)
+        output = self.m1(result)
         return self.softmax(output) # softmax before we return
-    
-    def initHidden(self):
-        return torch.zeros(1, self.hidden_size, device=util.device)
