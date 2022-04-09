@@ -46,6 +46,9 @@ class NeuralNetPlayer(OppAwareAI):
         deck_size_tensor = self.create_deck_size(deck_count)
 
         # loop through each player and focus on them
+        best_score = -1
+        opp_to_choose = None
+        best_card = None
         for opp in other_players:
             # focus on one opp 
             opp_hand_cards = self.create_opp_hand_tensor(opp)
@@ -66,12 +69,19 @@ class NeuralNetPlayer(OppAwareAI):
                 deck_size_tensor)
 
             # get the most likely card 
-            most_likely_card_index = result_tensor.topk(1).indices[0]
-            card = card_values[most_likely_card_index]
+            highest_card_score = result_tensor.topk(1).values[0]
 
-        # for now, just return the first opponent
-        # TODO: return a card and an opponent from the AI
-        return Move(self.name, other_players[0].name, card)
+            # compare it => if it's better, save 
+            if highest_card_score > best_score:
+                best_score = highest_card_score
+                best_card_index = result_tensor.topk(1).indices[0]
+                best_card = card_values[best_card_index]
+                opp_to_choose = opp.name
+
+        # return the best option if possible, else make a random move
+        if best_card is None:
+            return self.make_random_move(other_players)
+        return Move(self.name, opp_to_choose, best_card)
 
     def create_self_hand_tensor(self) -> torch.Tensor:
         # convert this hand's card amounts to tensor
