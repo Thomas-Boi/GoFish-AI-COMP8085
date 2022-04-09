@@ -1,5 +1,6 @@
 import colorama
 from argparse import ArgumentParser
+import datetime
 
 import Game
 from player.HumanPlayer import HumanPlayer
@@ -12,6 +13,48 @@ from typing import List
 import time
 from player.NeuralNetPlayer import NeuralNetPlayer, DATABASE
 
+
+def gather_data():
+    """ Play games for x time to collect training data """
+    players_config = {
+        "Opp1": OppAwareAI,
+        # "Opp2": OppAwareAI,
+        # "Opp3": OppAwareAI,
+        "NeuralNet": NeuralNetPlayer
+    }
+    result = {key: 0 for key in players_config}
+    result["Tie"] = 0
+    result["Total"] = 0
+
+    # TODO: run for an hour each - 1v1, 1v2, 1v3
+
+    # play the game
+    end_time = datetime.datetime.now() + datetime.timedelta(minutes=30)
+    while True:
+        if datetime.datetime.now() >= end_time:
+            break
+
+        players = [constructor(name) for name, constructor in players_config.items()]
+
+        game = Game.Game(players)
+        game.play(False, slow=False)
+        result["Total"] += 1
+
+        if len(game.winners) > 1:
+            result["Tie"] += 1
+        else:
+            result[game.winners[0].name] += 1
+
+
+    # write the resulting data to the csv
+    DATABASE.write_csv()
+
+    print("\nRESULT")
+    print(result)
+
+    print("\nRESULT PERCENTAGE")
+    percentage = {key: "{:.2f}%".format(val / result["Total"] * 100) for key, val in result.items()}
+    print(percentage)
 
 def ai_play():
     """
@@ -170,4 +213,5 @@ if __name__ == "__main__":
     if args.play:
         human_play(args.amount, args.type)
     else:
-        ai_play()
+        #ai_play()
+        gather_data()

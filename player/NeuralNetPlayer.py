@@ -94,8 +94,9 @@ class NeuralNetPlayer(OppAwareAI):
         if best_card is None:
             move = self.make_random_move(other_players)
             final_result = self.get_move_result(turn_inputs, move)
-            # append the current turn data in the database
-            DATABASE.append_row(final_result)
+            # check if ask is successful before appending new row
+            if final_result["successful_ask"]:
+                DATABASE.append_row(final_result)
             return move
         return Move(self.name, opp_to_choose, best_card)
 
@@ -136,7 +137,7 @@ class NeuralNetPlayer(OppAwareAI):
                 current_turn_inputs[opp_hand_size_key] = 0
                 current_turn_inputs[opp_hand_fours_key] = []
 
-        current_turn_inputs["Deck_Size"] = deck_size
+        current_turn_inputs["deck_size"] = deck_size
         return current_turn_inputs
 
     def create_self_hand_tensor(self) -> torch.Tensor:
