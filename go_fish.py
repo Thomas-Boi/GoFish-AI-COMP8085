@@ -1,17 +1,17 @@
 import colorama
 from argparse import ArgumentParser
 
-
 import Game
 from player.HumanPlayer import HumanPlayer
 from player.RandomAI import RandomAI
 from player.OppAwareAI import OppAwareAI
 from player.SearchAI import SearchAI
 from player.ProbabilityAI import ProbabilityAI
-from player.NeuralNetPlayer import NeuralNetPlayer
 from player.Player import Player
 from typing import List
 import time
+from player.NeuralNetPlayer import NeuralNetPlayer, DATABASE
+
 
 def ai_play():
     """
@@ -22,17 +22,22 @@ def ai_play():
         # "Random1": RandomAI,
         # "Random2": RandomAI,
         # "You": HumanPlayer,
-        "OppAware1": OppAwareAI,
-        "OppAware2": OppAwareAI,
-        "OppAware3": OppAwareAI,
+        # "OppAware1": OppAwareAI,
+        # "OppAware2": OppAwareAI,
+        # "OppAware3": OppAwareAI,
         # "OppAware4": OppAwareAI,
-        # "SearchAI": SearchAI
+        # "SearchAI": SearchAI,
         # "You": HumanPlayer,
         "Prob-Bot": ProbabilityAI,
-        # "NeuralNet": NeuralNetPlayer
+        "NeuralNet": NeuralNetPlayer
     }
     result = {key: 0 for key in players_config}
     result["Total"] = 0
+
+    # TODO: run for an hour each - 1v1, 1v2, 1v3
+
+    # read the csv data
+    # DATABASE.read_csv()
 
     # play the game
     start_time = time.time()
@@ -49,7 +54,10 @@ def ai_play():
             val = result.get(key_name, 0)
             result[key_name] = val + 1
         else:
-            result[game.winners[0].name] += 1 
+            result[game.winners[0].name] += 1
+
+    # write the resulting data to the csv
+    # DATABASE.write_csv()
 
     end_time = time.time()
 

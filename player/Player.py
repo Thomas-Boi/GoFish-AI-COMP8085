@@ -94,7 +94,6 @@ class Player:
             return True
 
         return False
-        
 
     def get_stats_as_seen_from_opp(self):
         """
