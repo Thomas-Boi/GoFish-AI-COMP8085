@@ -71,7 +71,6 @@ class NeuralNetPlayer(OppAwareAI):
                 others_hand_sizes,
                 fours,
                 deck_size_tensor)
-            #print(others_hand_cards)
 
             # get the most likely card
             highest_card_score = result_tensor.topk(1).values[0]
@@ -143,13 +142,8 @@ class NeuralNetPlayer(OppAwareAI):
         cur_hand = [val / DECK_SIZE for val in hand.values()]
         return torch.FloatTensor(cur_hand, device=device)
 
-<<<<<<< HEAD
     def create_opp_hand_tensor(self, opp_stat: OppStat) -> torch.Tensor:
         opp = self.opponents[opp_stat.name]
-=======
-    def create_opp_hand_tensor(self, opponents: Dict, opp_stat: OppStat) -> List[torch.Tensor]:
-        opp = opponents[opp_stat.name]
->>>>>>> 4970586... changed tensor creations functions so they don't rely on self variables in them
         
         # normalize the values
         opp_hand = [val / DECK_SIZE for val in opp.hand.values()]
@@ -158,11 +152,7 @@ class NeuralNetPlayer(OppAwareAI):
     def create_opp_size_tensor(self, opp_stat: OppStat) -> torch.Tensor:
         return torch.FloatTensor([opp_stat.hand_size / DECK_SIZE], device=device)
 
-<<<<<<< HEAD
     def create_others_hand_tensor(self, opp_stats: List[OppStat]) -> torch.Tensor:
-=======
-    def create_others_hand_tensor(self, opponents: Dict, opp_stats: Tuple[OppStat]) -> List[torch.Tensor]:
->>>>>>> 4970586... changed tensor creations functions so they don't rely on self variables in them
         """
         This represents all the other opponents beside the main opponent we are
         focusing on.
@@ -186,11 +176,7 @@ class NeuralNetPlayer(OppAwareAI):
             tensor.add_(self.create_opp_size_tensor(stat))
         return tensor
 
-<<<<<<< HEAD
-    def create_fours_tensor(self, opp_stats: Tuple[OppStat]) -> torch.Tensor:
-=======
-    def create_fours_tensor(self, current_fours: Set, opp_stats: Tuple[OppStat]) -> List[torch.Tensor]:
->>>>>>> 4970586... changed tensor creations functions so they don't rely on self variables in them
+    def create_fours_tensor(self, current_fours, opp_stats: Tuple[OppStat]) -> torch.Tensor:
         # 1 X 13 vector, default is the user's hand
         # contains the amount of cards to make a 4 then divide by 52.
         # e.g [0, 0, 1/13, 0, 1/13] would mean card value 4 and card value 6 have collected

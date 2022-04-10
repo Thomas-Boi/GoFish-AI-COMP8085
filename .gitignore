@@ -3,3 +3,4 @@
 
 # Large data files
 *.csv
+*.pkl

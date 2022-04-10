@@ -33,5 +33,4 @@ class Database():
         # | opp_1_cards | opp_1_hand_size | opp_1_fours
         # | opp_2_cards | opp_2_hand_size | opp_2_fours
         # | deck_size | successful_ask | card_ask
-
         self.data_list.append(input_output_dict)
