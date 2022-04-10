@@ -21,7 +21,7 @@ class NeuralNetworkAI(nn.Module):
         self.m1 = nn.Linear(input_size, output_size)
         nn.init.xavier_uniform_(self.m1.weight)
 
-        self.softmax = nn.LogSoftmax(dim=0)
+        self.softmax = nn.Softmax(dim=0)
 
     def forward(self, self_hand_tensor: torch.Tensor, 
         opp_hand_cards: torch.Tensor, 
@@ -48,4 +48,6 @@ class NeuralNetworkAI(nn.Module):
 
         result = self.tanh(concated_input)
         output = self.m1(result)
+        #print(f"Output from m1 {output}")
+        #print(f"Output from softmax {self.softmax(output)}")
         return self.softmax(output) # softmax before we return
