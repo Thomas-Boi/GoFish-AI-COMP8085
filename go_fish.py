@@ -17,7 +17,7 @@ def ai_play():
     Create play sessions intended for AI development and training.
     """
     players_config = {
-        # "Random": RandomAI,
+        "Random": RandomAI,
         # "Random1": RandomAI,
         # "Random2": RandomAI,
         # "You": HumanPlayer,
@@ -26,9 +26,9 @@ def ai_play():
         # "OppAware3": OppAwareAI,
         # "OppAware4": OppAwareAI,
         # "SearchAI": SearchAI
-        "You": HumanPlayer,
-        #"Prob-Bot": ProbabilityAI,
-        "NeuralNet": NeuralNetPlayer
+        # "You": HumanPlayer,
+        "Prob-Bot": ProbabilityAI,
+        # "NeuralNet": NeuralNetPlayer
     }
     result = {key: 0 for key in players_config}
     result["Tie"] = 0
@@ -39,7 +39,7 @@ def ai_play():
         players = [constructor(name) for name, constructor in players_config.items()]
 
         game = Game.Game(players)
-        game.play(False, slow=False)
+        game.play(verbose=False, slow=False)
         result["Total"] += 1
 
         if len(game.winners) > 1:

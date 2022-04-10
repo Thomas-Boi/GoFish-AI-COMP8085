@@ -34,11 +34,6 @@ class Player:
         that can be used by the bots to track the cards in that player's hand.
         """
 
-        self.deck_count = 0
-        """
-        Size of the deck.
-        """
-
     def has_card(self, card) -> bool:
         """
         Check whether the player has the asked card.
@@ -126,7 +121,7 @@ class Player:
         return txt
 
 
-    def set_initial_state(self, opps: Tuple[OppStat], deck_count: int):
+    def set_initial_state(self, opps: Tuple[OppStat]):
         """
         Set the initial state of the player.
         :param opps, the opponents of this player in the game.
@@ -134,7 +129,6 @@ class Player:
         """
         for opp in opps:
             self.opponents[opp.name] = Opponent(opp)
-        self.deck_count = deck_count
 
 
     def update_player_state(self, move: Move):

@@ -46,8 +46,10 @@ class Game:
         Init the game by dealing the cards to each player.
         """
         initial_hands_count = 7
-        if len(self.players) >= 4:
+        if len(self.players) == 4:
             initial_hands_count = 5
+        elif len(self.players) > 4:
+            raise ValueError("Can only have between 2-4 players")
 
         for player in self.players:
             hand = self.deck.draw(initial_hands_count)
@@ -57,7 +59,7 @@ class Game:
         for player in self.players:
             # update the players on the state of the board starting out
             opps = self.get_stats_from_opponents(player)
-            player.set_initial_state(opps, len(self.deck.cards))
+            player.set_initial_state(opps)
 
         # shuffle the cur_index so player who goes first
         # start randomly each round
@@ -81,7 +83,7 @@ class Game:
             for card in player_hand:
                 has_four = player.check_for_fours_in_hand(card)
 
-            if has_four:
+            if has_four and verbose:
                 print(f"{color_text('LUCKY', Fore.YELLOW)}! Player {color_text(player.name, Fore.CYAN)} found a four-of-a-kind at the start!")
                 
         while not self.is_game_ended():
