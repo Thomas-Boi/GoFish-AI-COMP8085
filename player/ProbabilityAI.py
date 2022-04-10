@@ -65,7 +65,9 @@ class ProbabilityAI(OppAwareAI):
         best_prob_table = pd.DataFrame()
         for opp in self.opponents.values():
             prob_table = self.generate_prob_table(opp)
+            # print("done generate prob table")
             best_card_for_opp = self.find_best_card(prob_table)
+            # print("done find best per opp")
 
             # add this as a column
             # to address same value from different players, append them
@@ -73,6 +75,7 @@ class ProbabilityAI(OppAwareAI):
         
         # find best column with the best card
         best_card = self.find_best_card(best_prob_table)
+        # print("done find best per move")
         # retrieve the card name and opp name
         card, opp_name = str(best_card.name).split(CARD_NAME_SEPERATOR)
 
@@ -92,11 +95,12 @@ class ProbabilityAI(OppAwareAI):
             # decrease hand size if it contains card we know about
             hand_size -= count
 
-
         # get the pool we are selecting from
         pool = self.find_pool_size()
         # if pool < hand_size:
-        #     print(opp.hand_size)
+        #     print(f"OG opp hand size: {opp.hand_size}")
+        #     print(f"Hand size after removing known cards: {hand_size}")
+        #     print(f"Actual opp hand: {opp.actual_hand}")
         #     self.find_pool_size(True)
 
         # fill out the table
@@ -223,6 +227,7 @@ class ProbabilityAI(OppAwareAI):
 
         candidates = []
         highest_prob = 0
+        # print("Find best card")
 
         for row in prob_table.iterrows():
             index, data = row

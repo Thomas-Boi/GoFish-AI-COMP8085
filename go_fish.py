@@ -11,6 +11,7 @@ from player.ProbabilityAI import ProbabilityAI
 from player.NeuralNetPlayer import NeuralNetPlayer
 from player.Player import Player
 from typing import List
+import time
 
 def ai_play():
     """
@@ -35,7 +36,9 @@ def ai_play():
     result["Total"] = 0
 
     # play the game
-    for i in range(100):
+    start_time = time.time()
+    rounds = 100
+    for i in range(rounds):
         players = [constructor(name) for name, constructor in players_config.items()]
 
         game = Game.Game(players)
@@ -47,12 +50,18 @@ def ai_play():
         else:
             result[game.winners[0].name] += 1 
 
+    end_time = time.time()
+
     print("\nRESULT")
     print(result)
     
     print("\nRESULT PERCENTAGE")
     percentage = {key: "{:.2f}%".format(val / result["Total"] * 100) for key, val in result.items()}
     print(percentage)
+
+    print("\nTIME")
+    print(f"Total: {end_time - start_time}s")
+    print(f"Average Per Round: {(end_time - start_time) / rounds}s")
 
 def human_play(opp_amount: int, opp_type: int):
     """
