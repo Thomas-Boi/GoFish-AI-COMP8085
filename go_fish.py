@@ -26,13 +26,7 @@ def gather_data():
     result["Tie"] = 0
     result["Total"] = 0
 
-    # run for 15 mins each - 1v1, 1v2, 1v3
-    # recording times here for now
-    # 1 opp: 2 mins, 13 mins
-    # make backup of file at this point just in case
-    # 2 opps: 15 mins
-    # 3 opps: 15 mins
-
+    # Ran for 15 mins each - 1v1, 1v2, 1v3
     # read the data into dataframe
     DATABASE.read_csv()
 
@@ -62,6 +56,7 @@ def gather_data():
     print("\nRESULT PERCENTAGE")
     percentage = {key: "{:.2f}%".format(val / result["Total"] * 100) for key, val in result.items()}
     print(percentage)
+
 
 def ai_play():
     """
@@ -137,6 +132,7 @@ def human_play(opp_amount: int, opp_type: int):
 
     game = Game.Game(players)
     game.play(True, True, True)
+
 
 def neural_net_train():
     """

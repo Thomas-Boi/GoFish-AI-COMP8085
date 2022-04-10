@@ -44,8 +44,8 @@ class NeuralNetPlayer(OppAwareAI):
         self.gathering_data = False
 
     def make_move(self, other_players: Tuple[OppStat], deck_count: int) -> Move:
-        self_hand_tensor = self.create_self_hand_tensor()
-        fours = self.create_fours_tensor(other_players)
+        self_hand_tensor = self.create_self_hand_tensor(self.hand)
+        fours = self.create_fours_tensor(self.fours, other_players)
         deck_size_tensor = self.create_deck_size(deck_count)
 
         # loop through each player and focus on them
@@ -53,51 +53,52 @@ class NeuralNetPlayer(OppAwareAI):
         opp_to_choose = None
         best_card = None
 
-        if self.gathering_data:
-            turn_inputs = self.get_turn_data(other_players, deck_count)
-        else:
-            for opp in other_players:
-                # focus on one opp
-                opp_hand_cards = self.create_opp_hand_tensor(opp)
-                opp_hand_sizes = self.create_opp_size_tensor(opp)
+        for opp in other_players:
+            # focus on one opp
+            opp_hand_cards = self.create_opp_hand_tensor(self.opponents, opp)
+            opp_hand_sizes = self.create_opp_size_tensor(opp)
 
-                # get the stats of the other opponents
-                other_opps = [other_opp for other_opp in other_players if other_opp != opp]
-                others_hand_cards = self.create_others_hand_tensor(other_opps)
-                others_hand_sizes = self.create_others_size_tensor(other_opps)
+            # get the stats of the other opponents
+            other_opps = [other_opp for other_opp in other_players if other_opp != opp]
+            others_hand_cards = self.create_others_hand_tensor(self.opponents, other_opps)
+            others_hand_sizes = self.create_others_size_tensor(other_opps)
 
-                # get the possible cards to ask the opponent
-                result_tensor = self.network(self_hand_tensor,
-                    opp_hand_cards,
-                    opp_hand_sizes,
-                    others_hand_cards,
-                    others_hand_sizes,
-                    fours,
-                    deck_size_tensor)
-                print(others_hand_cards)
+            # get the possible cards to ask the opponent
+            result_tensor = self.network(self_hand_tensor,
+                opp_hand_cards,
+                opp_hand_sizes,
+                others_hand_cards,
+                others_hand_sizes,
+                fours,
+                deck_size_tensor)
+            #print(others_hand_cards)
 
-                # get the most likely card
-                highest_card_score = result_tensor.topk(1).values[0]
+            # get the most likely card
+            highest_card_score = result_tensor.topk(1).values[0]
 
-                # compare it => if it's better, save
-                if highest_card_score > best_score:
-                    best_score = highest_card_score
-                    best_card_index = result_tensor.topk(1).indices[0]
-                    best_card = card_values[best_card_index]
-                    opp_to_choose = opp.name
+            # compare it => if it's better, save
+            if highest_card_score > best_score:
+                best_score = highest_card_score
+                best_card_index = result_tensor.topk(1).indices[0]
+                best_card = card_values[best_card_index]
+                opp_to_choose = opp.name
 
         # return the best option if possible, else make a random move
         if best_card is None:
             move = self.make_random_move(other_players)
+            return move
+        return Move(self.name, opp_to_choose, best_card)
+
+    def check_for_successful_ask(self, turn_inputs: Dict, move: Move) -> bool:
+        if self.gathering_data:
             final_result = self.get_move_result(turn_inputs, move)
             # check if ask is successful before appending new row
             if final_result["successful_ask"]:
                 DATABASE.append_row(final_result)
-            return move
+                return True
+        return False
 
-        return Move(self.name, opp_to_choose, best_card)
-
-    def get_move_result(self, inputs: Dict, move: Move):
+    def get_move_result(self, inputs: Dict, move: Move) -> Dict:
         """
         Collect the results of the current move and add it to the dictionary.
         """
@@ -137,13 +138,18 @@ class NeuralNetPlayer(OppAwareAI):
         current_turn_inputs["deck_size"] = deck_size
         return current_turn_inputs
 
-    def create_self_hand_tensor(self) -> torch.Tensor:
+    def create_self_hand_tensor(self, hand: Dict) -> torch.Tensor:
         # convert this hand's card amounts to tensor
-        cur_hand = [val / DECK_SIZE for val in self.hand.values()]
+        cur_hand = [val / DECK_SIZE for val in hand.values()]
         return torch.FloatTensor(cur_hand, device=device)
 
+<<<<<<< HEAD
     def create_opp_hand_tensor(self, opp_stat: OppStat) -> torch.Tensor:
         opp = self.opponents[opp_stat.name]
+=======
+    def create_opp_hand_tensor(self, opponents: Dict, opp_stat: OppStat) -> List[torch.Tensor]:
+        opp = opponents[opp_stat.name]
+>>>>>>> 4970586... changed tensor creations functions so they don't rely on self variables in them
         
         # normalize the values
         opp_hand = [val / DECK_SIZE for val in opp.hand.values()]
@@ -152,7 +158,11 @@ class NeuralNetPlayer(OppAwareAI):
     def create_opp_size_tensor(self, opp_stat: OppStat) -> torch.Tensor:
         return torch.FloatTensor([opp_stat.hand_size / DECK_SIZE], device=device)
 
+<<<<<<< HEAD
     def create_others_hand_tensor(self, opp_stats: List[OppStat]) -> torch.Tensor:
+=======
+    def create_others_hand_tensor(self, opponents: Dict, opp_stats: Tuple[OppStat]) -> List[torch.Tensor]:
+>>>>>>> 4970586... changed tensor creations functions so they don't rely on self variables in them
         """
         This represents all the other opponents beside the main opponent we are
         focusing on.
@@ -161,7 +171,7 @@ class NeuralNetPlayer(OppAwareAI):
         tensor = torch.zeros(AMOUNT_OF_CARD_VALUES)
         for stat in opp_stats:
             # add in place
-            tensor.add_(self.create_opp_hand_tensor(stat))
+            tensor.add_(self.create_opp_hand_tensor(opponents, stat))
         return tensor
 
     def create_others_size_tensor(self, opp_stats: List[OppStat]) -> torch.Tensor:
@@ -176,11 +186,15 @@ class NeuralNetPlayer(OppAwareAI):
             tensor.add_(self.create_opp_size_tensor(stat))
         return tensor
 
+<<<<<<< HEAD
     def create_fours_tensor(self, opp_stats: Tuple[OppStat]) -> torch.Tensor:
+=======
+    def create_fours_tensor(self, current_fours: Set, opp_stats: Tuple[OppStat]) -> List[torch.Tensor]:
+>>>>>>> 4970586... changed tensor creations functions so they don't rely on self variables in them
         # 1 X 13 vector, default is the user's hand
         # contains the amount of cards to make a 4 then divide by 52.
         # e.g [0, 0, 1/13, 0, 1/13] would mean card value 4 and card value 6 have collected
-        tensor = torch.FloatTensor(self.create_a_four_tensor(self.fours))
+        tensor = torch.FloatTensor(self.create_a_four_tensor(current_fours))
         for stat in opp_stats:
             # add in place
             tensor.add_(self.create_a_four_tensor(stat.fours))
