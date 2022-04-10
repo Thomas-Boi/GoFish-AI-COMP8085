@@ -18,13 +18,13 @@ def ai_play():
     Create play sessions intended for AI development and training.
     """
     players_config = {
-        "Random": RandomAI,
+        # "Random": RandomAI,
         # "Random1": RandomAI,
         # "Random2": RandomAI,
         # "You": HumanPlayer,
-        # "OppAware1": OppAwareAI,
-        # "OppAware2": OppAwareAI,
-        # "OppAware3": OppAwareAI,
+        "OppAware1": OppAwareAI,
+        "OppAware2": OppAwareAI,
+        "OppAware3": OppAwareAI,
         # "OppAware4": OppAwareAI,
         # "SearchAI": SearchAI
         # "You": HumanPlayer,
@@ -32,7 +32,6 @@ def ai_play():
         # "NeuralNet": NeuralNetPlayer
     }
     result = {key: 0 for key in players_config}
-    result["Tie"] = 0
     result["Total"] = 0
 
     # play the game
@@ -46,7 +45,9 @@ def ai_play():
         result["Total"] += 1
 
         if len(game.winners) > 1:
-            result["Tie"] += 1
+            key_name = "_".join([winner.name for winner in game.winners])
+            val = result.get(key_name, 0)
+            result[key_name] = val + 1
         else:
             result[game.winners[0].name] += 1 
 
