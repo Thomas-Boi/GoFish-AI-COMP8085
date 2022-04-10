@@ -143,6 +143,14 @@ class Player:
         """
         pass
 
+    def update_opponents(self, opp_stats: Tuple[OppStat]):
+        """
+        Update info on the opponents.
+        """
+        for opp in self.opponents.values():
+            for opp_stat in opp_stats:
+                if opp_stat.name == opp:
+                    opp.update(opp_stat)
 
     def make_move(self, opps: Tuple[OppStat], deck_count: int) -> Move:
         """

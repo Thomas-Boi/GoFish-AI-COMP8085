@@ -9,6 +9,8 @@ from player.OppAwareAI import OppAwareAI
 from player.SearchAI import SearchAI
 from player.ProbabilityAI import ProbabilityAI
 from player.NeuralNetPlayer import NeuralNetPlayer
+from player.Player import Player
+from typing import List
 
 def ai_play():
     """
@@ -60,7 +62,7 @@ def human_play(opp_amount: int, opp_type: int):
     :param opp_type: 1 is for a RandomAI, 2 is for an OppAwareAI,
     3 is for a SearchAI, 4 is for a ProbabilityAI.
     """
-    players = [HumanPlayer("You")]
+    players: List[Player] = [HumanPlayer("You")]
     opponent_types = [
         RandomAI,
         OppAwareAI,

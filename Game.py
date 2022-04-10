@@ -114,7 +114,8 @@ class Game:
             other_players = self.get_stats_from_opponents(self.players[self.cur_index])
 
             # check to ensure players picked the right card and target
-            move = cur_player.make_move(tuple(other_players), len(self.deck.cards))
+            cur_player.update_opponents(other_players)
+            move = cur_player.make_move(other_players, len(self.deck.cards))
             if not cur_player.has_card(move.card):
                 print(f"Invalid choice! {color_text(move.asker, Fore.RED)} must ask for a card in their own hand.")
                 continue

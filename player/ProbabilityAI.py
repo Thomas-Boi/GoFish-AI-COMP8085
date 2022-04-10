@@ -1,9 +1,8 @@
 from player.OppAwareAI import *
 from player.Opponent import *
-from Deck import SUITS
+from Deck import SUITS, DECK_SIZE
 import math
 import pandas as pd
-from typing import List
 import random
 
 
@@ -92,13 +91,11 @@ class ProbabilityAI(OppAwareAI):
         if self.turn_counter > TURN_TO_START_PROB_AI:
             return self.make_random_move(other_players)
 
-        # get the cards in our hand right now
-        card_values = [card for card, amount in self.hand.items() if amount > 0]
-        
+
         # contains the most probable card of each player
         best_prob_table = pd.DataFrame()
         for opp in self.opponents.values():
-            prob_table = self.generate_prob_table(card_values, opp, other_players, deck_count)
+            prob_table = self.generate_prob_table(opp, other_players, deck_count)
             best_card_for_opp = self.find_best_card(prob_table)
             # add this as a column
             # to address same value from different players, append them
@@ -107,31 +104,35 @@ class ProbabilityAI(OppAwareAI):
         # find best column with the best card
         best_card = self.find_best_card(best_prob_table)
         # retrieve the card name and opp name
-        card, opp_name = str(best_card.name).split(CARD_NAME_SEPERATOR)[0]
+        card, opp_name = str(best_card.name).split(CARD_NAME_SEPERATOR)
 
         # fill out opp_name properly later
         return Move(self.name, opp_name, card) 
 
-    def generate_prob_table(self, card_values: List[str], opp: Opponent, opponents: Tuple[OppStat], deck_count: int) -> float:
+    def generate_prob_table(self, opp: Opponent, opponents: Tuple[OppStat], deck_count: int) -> pd.DataFrame:
         """
         Create the probability table for the opponent for only the cards
         that we currently possessed.
-        :param cards_in_hand: the card values we have in our hand currently.
         :param opp: the opponent we are checking.
         :param opponents: stats that know about from other opponents (hand_size and fours).
         :param deck_count: the number of cards remaining in the deck.
         """
         # we are checking probability of having 1 of, 2 of, and 3 of a certain card value
-        amounts = list(range(1, 4))
+        target_amounts = list(range(1, 4))
+
         # default table
-        table = pd.DataFrame(index=amounts, columns=card_values)
+        table = pd.DataFrame(index=target_amounts)
 
         # this specific opponent's opp stat
-        opp_state
+        opp_stat = [opp_stat for opp_stat in opponents if opp_stat.name == opp.name][0]
 
         # fill out the table
-        for card in card_values:
-            for amount in amounts:
+        for card, card_amount in self.hand.items():
+            # don't have any card => can't ask this
+            if card_amount == 0:
+                continue
+
+            for target_amount in target_amounts:
                 # fill out anything we know for sure first (cards they have asked)
                 # recall opp only tracks at least => we will treat it as exact cause there's no
                 # other info.
@@ -139,32 +140,83 @@ class ProbabilityAI(OppAwareAI):
                 # if we know opp has asked for this card and know that they have at least
                 # this amount or more. E.g we know they have at least two of 5s (asked for 5, got a 5)
                 # => [1, 5] and [2, 5] should have prob of 1
-                if opp.hand[card] >= amount:
-                    table.loc[amount, card] = 1 # for sure they have that card
-                else:
-                    hand_size = 5
-                    table.loc[amount, card] = self.find_prob_of_card(card, amount)
+                if opp.hand[card] >= target_amount:
+                    table.loc[target_amount, card] = 1 # for sure they have that card
+                    continue
+
+                remaining_amount = self.find_remaining_amount(card, opponents)
+
+                # get the hand size needed
+                hand_size = opp_stat.hand_size
+                for count in opp.hand.values():
+                    # decrease hand size if it contains card we know about
+                    hand_size -= count
+
+                # get the pool we are selecting from
+                pool = self.find_pool_size(opponents)
+                table.loc[target_amount, card] = self.find_prob_of_card(target_amount, remaining_amount, hand_size, pool)
 
         return table
 
+    def find_remaining_amount(self, target: str, opps: Tuple[OppStat]):
+        """
+        Find all the amount of card left that's not accounted for (aka not in anyone's hand).
+        :param target, the card we are looking for.
+        :param opps, the opponents.
+        """
+        # get the amount of the card we're searching for that's left
+        remaining_amount = SUITS
 
-    def find_prob_of_card(self, card: str, amount: int, 
-                          remaining_amount: int,
-                          hand_size: int, deck_size: int) -> float:
+        # see if the bot is holding any
+        remaining_amount -= self.hand[target] # remove anything that we hold
+
+        # remove any amount that the opponents holds
+        for opp in self.opponents.values():
+            remaining_amount -= opp.hand[target] # remove anything that the opp holds
+
+        return remaining_amount
+
+    def find_pool_size(self, opps: Tuple[OppStat]):
+        """
+        Find the size of the pool of cards we are selecting from.
+        This means all the cards that are unknown.
+        :param opps: all the other opponents.
+        """
+        pool_size = DECK_SIZE
+
+        # our cards and fours
+        pool_size -= self.get_hand_size()
+        for card in self.fours:
+            pool_size -= 4 # four of a kind == 4 cards each value
+
+        # do the same for opponents
+        for opp in opps:
+            pool_size -= opp.hand_size
+            for card in opp.fours:
+                pool_size -= 4
+
+        return pool_size
+
+    def find_prob_of_card(self, match_amount: int, 
+                          match_remaining_amount: int,
+                          hand_size: int, pool_size: int) -> float:
         """
         Find the probability of a certain amount_of_cards existing in 
         a given hand size knowing all the pertinent information. This assumes
         that the order of checking the opponents does not matter.
-        :param card, the card value we want to check
-        :param amount, the amount we are checking for
-        :param remaining_amount, the remaining amount of cards left that's unknown. 
+        :param match_amount, the amount of the card value we are checking for.
+        :param match_remaining_amount, the remaining amount of cards left for the card we're looking for.
         :param hand_size, the hand size.
-        :param deck_size, the deck size.
+        :param pool_size, the total amount of cards we are picking from. This includes the hand_size
+        as well.
         """
-        # formula is (4 Choose Amount) * (Cur deck size Choose hand size - amount) / (Cur deck size Choose hand size)
-        matching_value = math.comb(remaining_amount, amount)
-        non_matching_value = math.comb(deck_size + hand_size - remaining_amount, hand_size - amount)
-        total = math.comb(deck_size + hand_size, hand_size)
+        matching_value = math.comb(match_remaining_amount, match_amount)
+        # short circuit to save time
+        if matching_value == 0:
+            return 0 
+
+        non_matching_value = math.comb(pool_size - match_remaining_amount, hand_size - match_amount)
+        total = math.comb(pool_size, hand_size)
         return matching_value * non_matching_value / total
 
     def find_best_card(self, prob_table: pd.DataFrame) -> pd.Series:
@@ -183,7 +235,7 @@ class ProbabilityAI(OppAwareAI):
         # - If more than one is equal => move on to the next case
         # e.g if one of 2 and one of J has the same odds, evaluate two of 2s and two of Js.
 
-        if prob_table.empty():
+        if prob_table.empty:
             raise ValueError("Empty probability table. This should not happen.")
 
         candidates = []
@@ -204,7 +256,7 @@ class ProbabilityAI(OppAwareAI):
             # else, only search the columns that are in the candidates
             else:
                 for card in candidates:
-                    prob = data[card]
+                    prob = data[str(card)]
                     if prob > highest_prob:
                         highest_prob = prob
                         candidates = [card]
@@ -214,7 +266,7 @@ class ProbabilityAI(OppAwareAI):
             # 1 best solution => we will go for it
             # should never have 0 candidates
             if len(candidates) == 1:
-                return prob_table.loc[:, candidates[0]]
+                return prob_table.loc[:, str(candidates[0])]
 
         # if we are here, there are still two or more equal choices => pick a random one
-        return prob_table.loc[:, random.choice(candidates)]
+        return prob_table.loc[:, str(random.choice(candidates))]
