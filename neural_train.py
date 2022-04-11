@@ -2,6 +2,7 @@ import math
 import pandas as pd
 import torch.nn as nn
 import torch
+import pickle
 
 from typing import List, Iterable
 
@@ -43,7 +44,7 @@ def train(self_hand_tensor: torch.Tensor,
     return loss
 
 
-def start_train_session(dataframe, model, loss_fn, optimizer, learning_rate=0.05,
+def start_train_session(dataframe, model, loss_fn, model_ver, optimizer, learning_rate=0.05,
                         epoch=500, decay_rate=0.5, decay_time=50):
     """ Start a training session using the hyperparameters passed to the model """
     last_loss = 0
@@ -91,11 +92,12 @@ def start_train_session(dataframe, model, loss_fn, optimizer, learning_rate=0.05
             learning_rate *= decay_rate
             optimizer.lr = learning_rate
 
-        save_model(model, f"neural_models/network_v2_epoch_{i}.pt")
+        save_model(model, f"neural_models/network_v{model_ver}_epoch_{i}.pt")
 
     # write losses to file
-    with open('losses.txt', 'w') as f:
-        f.write(" ".join(losses))
+    with open('losses.txt', 'a') as f:
+        for loss in losses:
+            f.write(f"{loss} ")
 
 def save_model(model, filename):
     """ Save the model's state dict to file """
@@ -190,7 +192,7 @@ if __name__ == "__main__":
     # losses file: 12 sets of loss per epoch
 
     # set up params for network model
-    model = load_model("neural_models/network_v1.pt", training=True)
+    model = load_model("neural_models/network_v2_epoch_5.pt", training=True)
     # load model state dict HERE if need to train more
     loss_fn = torch.nn.MSELoss(reduction='sum')
     
@@ -198,4 +200,4 @@ if __name__ == "__main__":
     learning_rate = 0.05
     optimizer = torch.optim.SGD(model.parameters(), lr=learning_rate)
 
-    start_train_session(df, model, loss_fn, optimizer=optimizer, epoch=5, decay_rate=0.25, decay_time=1, learning_rate=learning_rate)
+    start_train_session(df, model, loss_fn, model_ver=3, optimizer=optimizer, epoch=6, decay_rate=0.5, decay_time=2, learning_rate=learning_rate)
