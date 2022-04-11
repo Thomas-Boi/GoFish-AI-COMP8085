@@ -95,7 +95,7 @@ def start_train_session(dataframe, model, loss_fn, optimizer=None, learning_rate
 
     save_model(model, "network_v1.pt")
 
-    print(losses)
+    #print(losses)
     # write losses to file
     with open('losses.txt', 'w') as f:
         for item in losses:
@@ -106,13 +106,14 @@ def save_model(model, filename):
     torch.save(model.state_dict(), filename)
 
 
-def load_model(filename):
+def load_model(filename, training=False):
     """ Load the model's state dict from file. Must init the base model first. """
     model = NeuralNetworkAI(INPUT_SIZE, OUTPUT_SIZE)
     model.load_state_dict(torch.load(filename))
     # only call eval() if NOT training
     # otherwise if using the model for evaluation (testing - no more training) use eval()
-    model.eval()
+    if not training:
+        model.eval()
     return model
 
 
@@ -191,7 +192,7 @@ if __name__ == "__main__":
     # losses file: 12 sets of loss per epoch
 
     # set up params for network model
-    model = NeuralNetworkAI(INPUT_SIZE, OUTPUT_SIZE)
+    model = load_model("network_v1.pt", training=True)
     # load model state dict HERE if need to train more
     loss_fn = torch.nn.MSELoss(reduction='sum')
     optimizer = torch.optim.SGD(model.parameters(), lr=0.05)

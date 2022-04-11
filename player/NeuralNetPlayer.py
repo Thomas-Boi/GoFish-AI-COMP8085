@@ -45,6 +45,7 @@ class NeuralNetPlayer(OppAwareAI):
         self.network = NeuralNetworkAI(INPUT_SIZE, OUTPUT_SIZE)
         self.network.load_state_dict(torch.load("network_v1.pt"))
         self.network.eval()
+
         self.gathering_data = False
 
     def make_move(self, other_players: Tuple[OppStat], deck_count: int) -> Move:
@@ -78,7 +79,6 @@ class NeuralNetPlayer(OppAwareAI):
 
             # get the most likely card
             highest_card_score = result_tensor.topk(1).values[0]
-            #print(highest_card_score)
 
             # compare it => if it's better, save
             if highest_card_score > best_score:
@@ -89,8 +89,7 @@ class NeuralNetPlayer(OppAwareAI):
 
         # return the best option if possible, else make a random move
         if best_card is None:
-            move = self.make_random_move(other_players)
-            return move
+            return self.make_random_move(other_players)
         return Move(self.name, opp_to_choose, best_card)
 
     def check_for_successful_ask(self, turn_inputs: Dict, move: Move) -> bool:
