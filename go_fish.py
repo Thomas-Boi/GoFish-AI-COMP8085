@@ -118,7 +118,7 @@ def human_play(opp_amount: int, opp_type: int):
     3 is for a SearchAI, 4 is for a ProbabilityAI.
     """
     players: List[Player] = [HumanPlayer("You")]
-    opponent_types = [
+    opponent_types: List[type] = [
         RandomAI,
         OppAwareAI,
         SearchAI,
@@ -127,8 +127,12 @@ def human_play(opp_amount: int, opp_type: int):
     ]
     names = ["a", "b", "c", "d", "e"]
 
-    for i in range(opp_amount):
-        players.append(opponent_types[opp_type - 1](names[i]))
+    if opp_amount == 1:
+        opp_constructor = opponent_types[opp_type - 1]
+        players.append(opp_constructor(opp_constructor.__name__))  
+    else:
+        for i in range(opp_amount):
+            players.append(opponent_types[opp_type - 1](names[i]))
 
     game = Game.Game(players)
     game.play(True, True, True)
