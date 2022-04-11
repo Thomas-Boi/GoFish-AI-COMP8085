@@ -45,7 +45,7 @@ def train(self_hand_tensor: torch.Tensor,
 
 
 def start_train_session(dataframe, model, loss_fn, model_ver, optimizer, learning_rate=0.05,
-                        epoch=500, decay_rate=0.5, decay_time=50):
+                        epoch=500, decay_rate=0.5, decay_time=50, log_rate=100000):
     """ Start a training session using the hyperparameters passed to the model """
     last_loss = 0
     losses = []
@@ -74,7 +74,7 @@ def start_train_session(dataframe, model, loss_fn, model_ver, optimizer, learnin
                               model, learning_rate, loss_fn,
                               optimizer=optimizer)
 
-            if index % 100000 == 0:
+            if index % log_rate == 0:
                 # get losses for plotting later
                 losses.append(last_loss.item())
                 print(f"{index}: {last_loss.item()}")
@@ -92,10 +92,13 @@ def start_train_session(dataframe, model, loss_fn, model_ver, optimizer, learnin
             learning_rate *= decay_rate
             optimizer.lr = learning_rate
 
-        save_model(model, f"neural_models/network_v{model_ver}_epoch_{i}.pt")
+        # shuffle
+        dataframe = dataframe.sample(frac=1).reset_index(drop=True)
+
+    save_model(model, f"neural_models/network_v_test.pt")
 
     # write losses to file
-    with open('losses.txt', 'a') as f:
+    with open('test_losses.txt', 'a') as f:
         f.write("\n")
         for loss in losses:
             f.write(f"{loss} ")
@@ -193,16 +196,17 @@ if __name__ == "__main__":
     # losses file: 12 sets of loss per epoch
 
     # MAKE SURE MODEL VERSION IS UPDATED
-    model_ver = 3
-    epoch_ver = 14
-    next_model_ver = model_ver + 1
+    model_ver = 1
+    epoch_ver = 1
+    # next_model_ver = model_ver + 1
+    next_model_ver = 5
     # set up params for network model
-    model = load_model(f"neural_models/network_v{model_ver}_epoch_{epoch_ver}.pt", training=True)
+    model = load_model(f"neural_models/network_v{model_ver}.pt", training=True)
     loss_fn = torch.nn.MSELoss(reduction='sum')
 
-    learning_rate = 0.01
+    learning_rate = 0.05
     optimizer = torch.optim.SGD(model.parameters(), lr=learning_rate)
 
     print(f"Loading model v{model_ver}")
     print(f"Training model v{next_model_ver}")
-    start_train_session(df, model, loss_fn, model_ver=next_model_ver, optimizer=optimizer, epoch=1, decay_rate=0.5, decay_time=2, learning_rate=learning_rate)
+    start_train_session(df.head(100), model, loss_fn, model_ver=next_model_ver, optimizer=optimizer, epoch=100, decay_rate=0.5, decay_time=5, learning_rate=learning_rate, log_rate=10)
