@@ -88,17 +88,17 @@ class NeuralNetPlayer(OppAwareAI):
         cur_hand = [val / DECK_SIZE for val in self.hand.values()]
         return torch.FloatTensor(cur_hand, device=device)
 
-    def create_opp_hand_tensor(self, opp_stat: OppStat) -> List[torch.Tensor]:
+    def create_opp_hand_tensor(self, opp_stat: OppStat) -> torch.Tensor:
         opp = self.opponents[opp_stat.name]
         
         # normalize the values
         opp_hand = [val / DECK_SIZE for val in opp.hand.values()]
         return torch.FloatTensor(opp_hand, device=device)
 
-    def create_opp_size_tensor(self, opp_stat: OppStat) -> List[torch.Tensor]:
+    def create_opp_size_tensor(self, opp_stat: OppStat) -> torch.Tensor:
         return torch.FloatTensor([opp_stat.hand_size / DECK_SIZE], device=device)
 
-    def create_others_hand_tensor(self, opp_stats: Tuple[OppStat]) -> List[torch.Tensor]:
+    def create_others_hand_tensor(self, opp_stats: List[OppStat]) -> torch.Tensor:
         """
         This represents all the other opponents beside the main opponent we are
         focusing on.
@@ -110,7 +110,7 @@ class NeuralNetPlayer(OppAwareAI):
             tensor.add_(self.create_opp_hand_tensor(stat))
         return tensor
 
-    def create_others_size_tensor(self, opp_stats: Tuple[OppStat]) -> List[torch.Tensor]:
+    def create_others_size_tensor(self, opp_stats: List[OppStat]) -> torch.Tensor:
         """
         This represents all the other opponents beside the main opponent we are
         focusing on.
@@ -122,7 +122,7 @@ class NeuralNetPlayer(OppAwareAI):
             tensor.add_(self.create_opp_size_tensor(stat))
         return tensor
 
-    def create_fours_tensor(self, opp_stats: Tuple[OppStat]) -> List[torch.Tensor]:
+    def create_fours_tensor(self, opp_stats: Tuple[OppStat]) -> torch.Tensor:
         # 1 X 13 vector, default is the user's hand
         # contains the amount of cards to make a 4 then divide by 52.
         # e.g [0, 0, 1/13, 0, 1/13] would mean card value 4 and card value 6 have collected
