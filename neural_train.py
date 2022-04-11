@@ -192,14 +192,17 @@ if __name__ == "__main__":
     # decay_rate of 0.25 next
     # losses file: 12 sets of loss per epoch
 
+    # MAKE SURE MODEL VERSION IS UPDATED
+    model_ver = 3
+    epoch_ver = 14
+    next_model_ver = model_ver + 1
     # set up params for network model
-    model = load_model("neural_models/network_v2_epoch_5.pt", training=True)
-    # load model state dict HERE if need to train more
+    model = load_model(f"neural_models/network_v{model_ver}_epoch_{epoch_ver}.pt", training=True)
     loss_fn = torch.nn.MSELoss(reduction='sum')
-    
 
     learning_rate = 0.01
     optimizer = torch.optim.SGD(model.parameters(), lr=learning_rate)
 
-    # MAKE SURE MODEL VERSION IS UPDATED
-    start_train_session(df, model, loss_fn, model_ver=5, optimizer=optimizer, epoch=1, decay_rate=0.5, decay_time=2, learning_rate=learning_rate)
+    print(f"Loading model v{model_ver}")
+    print(f"Training model v{next_model_ver}")
+    start_train_session(df, model, loss_fn, model_ver=next_model_ver, optimizer=optimizer, epoch=1, decay_rate=0.5, decay_time=2, learning_rate=learning_rate)
