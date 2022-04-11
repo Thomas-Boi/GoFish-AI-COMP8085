@@ -98,7 +98,7 @@ def start_train_session(dataframe, model, loss_fn, model_ver, optimizer, learnin
         save_model(model, f"neural_models/network_v{model_ver}_epoch{i}.pt")
 
     # write losses to file
-    with open('test_losses.txt', 'a') as f:
+    with open('losses.txt', 'a') as f:
         f.write("\n")
         for loss in losses:
             f.write(f"{loss} ")
@@ -213,4 +213,5 @@ if __name__ == "__main__":
 
     print(f"Loading model v{model_ver}")
     print(f"Training model v{next_model_ver}")
-    start_train_session(df, model, loss_fn, model_ver=next_model_ver, optimizer=optimizer, epoch=100, decay_rate=0.5, decay_time=5, learning_rate=learning_rate)
+    start_train_session(df, model, loss_fn, model_ver=next_model_ver, optimizer=optimizer,
+                        epoch=5, decay_rate=0.5, decay_time=1, learning_rate=learning_rate, log_rate=50000)
