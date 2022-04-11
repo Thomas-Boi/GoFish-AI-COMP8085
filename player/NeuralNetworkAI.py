@@ -40,6 +40,5 @@ class NeuralNetworkAI(nn.Module):
 
         result = self.tanh(concated_input)
         output = self.m1(result)
-        #print(f"Output from m1 {output}")
-        #print(f"Output from softmax {self.softmax(output)}")
+
         return self.softmax(output) # softmax before we return

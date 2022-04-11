@@ -40,9 +40,11 @@ class NeuralNetPlayer(OppAwareAI):
         # = (1X55)
         INPUT_SIZE = 55
         OUTPUT_SIZE = 13
+        # load the network from file
+        # must set on eval() if we are no longer training
         self.network = NeuralNetworkAI(INPUT_SIZE, OUTPUT_SIZE)
-        # TODO: load the best version of the network model here
-
+        self.network.load_state_dict(torch.load("network_v1.pt"))
+        self.network.eval()
         self.gathering_data = False
 
     def make_move(self, other_players: Tuple[OppStat], deck_count: int) -> Move:
