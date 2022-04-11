@@ -1,6 +1,4 @@
-import ast
 import math
-import pickle
 import pandas as pd
 import torch.nn as nn
 import torch
@@ -45,7 +43,7 @@ def train(self_hand_tensor: torch.Tensor,
     return loss
 
 
-def start_train_session(dataframe, model, loss_fn, optimizer=None, learning_rate=0.05,
+def start_train_session(dataframe, model, loss_fn, optimizer, learning_rate=0.05,
                         epoch=500, decay_rate=0.5, decay_time=50):
     """ Start a training session using the hyperparameters passed to the model """
     last_loss = 0
@@ -82,24 +80,22 @@ def start_train_session(dataframe, model, loss_fn, optimizer=None, learning_rate
 
         # stop early if we have low loss or if the loss exploded
         if last_loss <= 0.01:
+            print("Loss below 0.01. Ending early.")
             break
-        elif last_loss == math.inf or last_loss == -math.inf:
+        elif last_loss == math.inf or last_loss == -math.inf or last_loss == torch.nan:
+            print(f"Loss exploded, value is {last_loss}. Ending early.")
             break
 
         # decay the learning rate
         if i % decay_time == 0:
             learning_rate *= decay_rate
+            optimizer.lr = learning_rate
 
-            if optimizer:
-                optimizer.lr = learning_rate
+        save_model(model, f"neural_models/network_v2_epoch_{i}.pt")
 
-    save_model(model, "network_v1.pt")
-
-    #print(losses)
     # write losses to file
     with open('losses.txt', 'w') as f:
-        for item in losses:
-            f.write(f"{item} ")
+        f.write(" ".join(losses))
 
 def save_model(model, filename):
     """ Save the model's state dict to file """
@@ -112,7 +108,9 @@ def load_model(filename, training=False):
     model.load_state_dict(torch.load(filename))
     # only call eval() if NOT training
     # otherwise if using the model for evaluation (testing - no more training) use eval()
-    if not training:
+    if training:
+        model.train()
+    else:
         model.eval()
     return model
 
@@ -123,18 +121,18 @@ def create_self_hand_tensor(our_hand: List) -> torch.Tensor:
     return torch.FloatTensor(cur_hand, device=device)
 
 
-def create_opp_hand_tensor(opponent_hand: List) -> List[torch.Tensor]:
+def create_opp_hand_tensor(opponent_hand: List) -> torch.Tensor:
     """ Create tensor of an opponent's hand and normalize it (1x13) """
     opp_hand = [val / DECK_SIZE for val in opponent_hand]
     return torch.FloatTensor(opp_hand, device=device)
 
 
-def create_opp_size_tensor(hand_size: int) -> List[torch.Tensor]:
+def create_opp_size_tensor(hand_size: int) -> torch.Tensor:
     """ Create a 1x1 tensor of an opponent's hand size """
     return torch.FloatTensor([hand_size / DECK_SIZE], device=device)
 
 
-def create_other_opp_hand_tensor(other_opponents: List) -> List[torch.Tensor]:
+def create_other_opp_hand_tensor(other_opponents: List) -> torch.Tensor:
     """ Create a 1x13 combined tensor of the other opponents hands """
     tensor = torch.zeros(AMOUNT_OF_CARD_VALUES)
     for opp in other_opponents:
@@ -142,7 +140,7 @@ def create_other_opp_hand_tensor(other_opponents: List) -> List[torch.Tensor]:
     return tensor
 
 
-def create_other_opp_size_tensor(other_opponents_sizes: List) -> List[torch.Tensor]:
+def create_other_opp_size_tensor(other_opponents_sizes: List) -> torch.Tensor:
     """ Create a 1x1 combined tensor of the other opponents hand size """
     tensor = torch.zeros(1)
     for opp_size in other_opponents_sizes:
@@ -159,7 +157,7 @@ def create_a_four_tensor(fours: Iterable[str]) -> torch.Tensor:
     return tensor
 
 
-def create_fours_tensor(current_fours: List, opponents_fours: List) -> List[torch.Tensor]:
+def create_fours_tensor(current_fours: List, opponents_fours: List) -> torch.Tensor:
     """ Create a 1x13 fours tensor given the current bot player and other opponents """
     tensor = torch.FloatTensor(create_a_four_tensor(current_fours))
     for opp_fours in opponents_fours:
@@ -172,7 +170,7 @@ def create_deck_size(deck_size: int) -> torch.Tensor:
     return torch.FloatTensor([deck_size / DECK_SIZE], device=device)
 
 
-def create_asked_card_tensor(asked_card: str) -> List[torch.Tensor]:
+def create_asked_card_tensor(asked_card: str) -> torch.Tensor:
     """ Create the asked card tensor as a 1x13 tensor"""
     tensor = torch.zeros(AMOUNT_OF_CARD_VALUES, device=device)
     index = CARD_VALUE_TENSOR_INDEX_DICT[asked_card]
@@ -192,9 +190,12 @@ if __name__ == "__main__":
     # losses file: 12 sets of loss per epoch
 
     # set up params for network model
-    model = load_model("network_v1.pt", training=True)
+    model = load_model("neural_models/network_v1.pt", training=True)
     # load model state dict HERE if need to train more
     loss_fn = torch.nn.MSELoss(reduction='sum')
-    optimizer = torch.optim.SGD(model.parameters(), lr=0.05)
+    
 
-    start_train_session(df, model, loss_fn, optimizer=optimizer, epoch=5, decay_rate=0.25, decay_time=1)
+    learning_rate = 0.05
+    optimizer = torch.optim.SGD(model.parameters(), lr=learning_rate)
+
+    start_train_session(df, model, loss_fn, optimizer=optimizer, epoch=5, decay_rate=0.25, decay_time=1, learning_rate=learning_rate)
