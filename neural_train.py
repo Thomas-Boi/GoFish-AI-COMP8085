@@ -96,6 +96,7 @@ def start_train_session(dataframe, model, loss_fn, model_ver, optimizer, learnin
 
     # write losses to file
     with open('losses.txt', 'a') as f:
+        f.write("\n")
         for loss in losses:
             f.write(f"{loss} ")
 
@@ -197,7 +198,8 @@ if __name__ == "__main__":
     loss_fn = torch.nn.MSELoss(reduction='sum')
     
 
-    learning_rate = 0.05
+    learning_rate = 0.01
     optimizer = torch.optim.SGD(model.parameters(), lr=learning_rate)
 
-    start_train_session(df, model, loss_fn, model_ver=3, optimizer=optimizer, epoch=6, decay_rate=0.5, decay_time=2, learning_rate=learning_rate)
+    # MAKE SURE MODEL VERSION IS UPDATED
+    start_train_session(df, model, loss_fn, model_ver=5, optimizer=optimizer, epoch=1, decay_rate=0.5, decay_time=2, learning_rate=learning_rate)
