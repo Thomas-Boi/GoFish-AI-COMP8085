@@ -41,6 +41,8 @@ class NeuralNetPlayer(OppAwareAI):
         INPUT_SIZE = 55
         OUTPUT_SIZE = 13
         self.network = NeuralNetworkAI(INPUT_SIZE, OUTPUT_SIZE)
+        # TODO: load the best version of the network model here
+
         self.gathering_data = False
 
     def make_move(self, other_players: Tuple[OppStat], deck_count: int) -> Move:

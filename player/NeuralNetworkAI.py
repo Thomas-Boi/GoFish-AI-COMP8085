@@ -3,14 +3,6 @@ import torch
 from util import device
 from typing import List
 
-# TODO
-# training function (feed data into update loop)
-# update loop (play 1 game, get the loss, backpropagate)
-# neural net creation function
-# tensor maker (convert game input to tensors)
-# loss function
-# AI class and architecture -> doing
-
 class NeuralNetworkAI(nn.Module):
     def __init__(self, input_size, output_size):
         super(NeuralNetworkAI, self).__init__()

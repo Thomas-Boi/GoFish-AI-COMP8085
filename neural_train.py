@@ -1,4 +1,5 @@
 import ast
+import math
 import pickle
 import pandas as pd
 import torch.nn as nn
@@ -11,6 +12,10 @@ from util import device
 from player.NeuralNetworkAI import NeuralNetworkAI
 from player.NeuralNetPlayer import DECK_SIZE, AMOUNT_OF_CARD_VALUES, CARD_VALUE_TENSOR_INDEX_DICT
 
+MODEL_FILE_V1 = "network_v1"
+LOSS_FILE = "losses.txt"
+INPUT_SIZE = 55
+OUTPUT_SIZE = 13
 
 def train(self_hand_tensor: torch.Tensor,
           opp_hand_cards: torch.Tensor,
@@ -27,10 +32,12 @@ def train(self_hand_tensor: torch.Tensor,
     loss = loss_fn(y_pred, asked_card)
 
     if optimizer:
+        # backpropogate with optimizer
         optimizer.zero_grad()
         loss.backward()
         optimizer.step()
     else:
+        # without optimizer we tune the parameters manually with the passed learning rate
         model.zero_grad()
         with torch.no_grad():
             for param in model.parameters():
@@ -41,8 +48,20 @@ def train(self_hand_tensor: torch.Tensor,
 
 def start_train_session(dataframe, model, loss_fn, optimizer=None, learning_rate=0.05,
                         epoch=500, decay_rate=0.5, decay_time=50):
+    last_loss = 0
+    updated_model = model
+    losses = []
+
     for i in range(1, epoch + 1):
+        print(f"Epoch {i}")
+        print("Saving and reloading saved model...")
+
+        new_model_str = f"{MODEL_FILE_V1}_{i}.pt"
+        save_model(updated_model, new_model_str)
+        updated_model = load_model(new_model_str)
+
         for index, row in dataframe.iterrows():
+            # convert all features to tensors before feeding to model
             our_hand_tensor = create_self_hand_tensor(row["our_hand"])
             fours_tensor = create_fours_tensor(row["our_fours"],
                                                [row["opp_0_fours"], row["opp_1_fours"], row["opp_2_fours"]])
@@ -60,35 +79,41 @@ def start_train_session(dataframe, model, loss_fn, optimizer=None, learning_rate
                               others_hand_cards_tensor, others_hand_size_tensor,
                               fours_tensor, deck_size_tensor,
                               asked_card_output_tensor,
-                              model, learning_rate, loss_fn,
+                              updated_model, learning_rate, loss_fn,
                               optimizer=optimizer)
-            print(last_loss)
 
-            # stop early if we have low loss
-            if last_loss <= 0.001:
-                break
-
-            # decay the learning rate
-            if i % decay_time == 0:
-                learning_rate *= decay_rate
-
-                if optimizer:
-                    optimizer.lr = learning_rate
+            if index % 100000 == 0:
+                losses.append(last_loss.item())
+                print(f"{index}: {last_loss.item()}")
 
 
-def validate(data_x, data_y, model):
-    for x, y in zip(data_x, data_y):
-        y_pred = model(x) > 0.5
-        print(x.numpy()[0], "\tPrediction: {}\t{} predicted.".format(
-            y_pred.item(), "Correctly" if y.item() == y_pred.item() else "Incorrectly"))
+        # stop early if we have low loss or if the loss exploded
+        if last_loss <= 0.01:
+            break
+        elif last_loss == math.inf or last_loss == -math.inf:
+            break
 
+        # decay the learning rate
+        if i % decay_time == 0:
+            learning_rate *= decay_rate
 
-def save_model(model):
-    pass
+            if optimizer:
+                optimizer.lr = learning_rate
+
+    print(losses)
+    with open('losses.txt', 'w') as f:
+        for item in losses:
+            f.write(f"{item} ")
+
+def save_model(model, filename):
+    torch.save(model.state_dict(), filename)
 
 
 def load_model(filename):
-    pass
+    model = NeuralNetworkAI(INPUT_SIZE, OUTPUT_SIZE)
+    model.load_state_dict(torch.load(filename))
+    model.eval()
+    return model
 
 
 def create_self_hand_tensor(our_hand: List) -> torch.Tensor:
@@ -150,17 +175,14 @@ if __name__ == "__main__":
     # this is the cleaned data with the converted lists
     df = pd.read_pickle("cleaned_rounds_data.pkl")
 
-    # split dataframe into features and target (asked card) variables
-    # features = df.drop("card_ask", axis=1)
-    # target = df.iloc[:-1]
-
     # set up params for network model
-    INPUT_SIZE = 55
-    OUTPUT_SIZE = 13
     model = NeuralNetworkAI(INPUT_SIZE, OUTPUT_SIZE)
     loss_fn = torch.nn.MSELoss(reduction='sum')
-    optimizer = torch.optim.SGD(model.parameters(), lr=0.05)  # 0.001
-    # print(model.m1.weight) # size([13, 55])
-    # print(model.m1.bias) # size ([13])
+    optimizer = torch.optim.SGD(model.parameters(), lr=0.05)
 
-    start_train_session(df, model, loss_fn, optimizer=optimizer)
+    # NOTES:
+    # learning rate may be need to be lowered
+    # total epochs taken might be 10 or a little over that
+    # decay_rate of 0.25 next
+
+    start_train_session(df, model, loss_fn, optimizer=optimizer, epoch=5, decay_rate=0.25, decay_time=1)
