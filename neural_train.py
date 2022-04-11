@@ -81,7 +81,7 @@ def start_train_session(dataframe, model, loss_fn, model_ver, optimizer, learnin
 
         # stop early if we have low loss or if the loss exploded
         if last_loss <= 0.01:
-            print("Loss below 0.01. Ending early.")
+            print(f"Loss below 0.01, value is {last_loss}. Ending early.")
             break
         elif last_loss == math.inf or last_loss == -math.inf or last_loss == torch.nan:
             print(f"Loss exploded, value is {last_loss}. Ending early.")
@@ -95,7 +95,7 @@ def start_train_session(dataframe, model, loss_fn, model_ver, optimizer, learnin
         # shuffle
         dataframe = dataframe.sample(frac=1).reset_index(drop=True)
 
-    save_model(model, f"neural_models/network_v_test.pt")
+        save_model(model, f"neural_models/network_v{model_ver}_epoch{i}.pt")
 
     # write losses to file
     with open('test_losses.txt', 'a') as f:
@@ -198,14 +198,18 @@ if __name__ == "__main__":
     # MAKE SURE MODEL VERSION IS UPDATED
     model_ver = 1
     epoch_ver = 1
-    # next_model_ver = model_ver + 1
-    next_model_ver = 5
+    
+    # next model (can be an int or a str)
+    next_model_ver = model_ver + 1
+    # next_model_ver = "_test_adam"
+
     # set up params for network model
     model = load_model(f"neural_models/network_v{model_ver}.pt", training=True)
     loss_fn = torch.nn.MSELoss(reduction='sum')
 
     learning_rate = 0.05
-    optimizer = torch.optim.SGD(model.parameters(), lr=learning_rate)
+    # optimizer = torch.optim.SGD(model.parameters(), lr=learning_rate)
+    optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
 
     print(f"Loading model v{model_ver}")
     print(f"Training model v{next_model_ver}")
