@@ -204,7 +204,7 @@ if __name__ == "__main__":
     # next_model_ver = "_test_adam"
 
     # set up params for network model
-    model = load_model(f"neural_models/network_v{model_ver}.pt", training=True)
+    model = load_model(f"neural_models/network_v{model_ver}_epoch_{epoch_ver}.pt", training=True)
     loss_fn = torch.nn.MSELoss(reduction='sum')
 
     learning_rate = 0.05
@@ -213,4 +213,4 @@ if __name__ == "__main__":
 
     print(f"Loading model v{model_ver}")
     print(f"Training model v{next_model_ver}")
-    start_train_session(df.head(100), model, loss_fn, model_ver=next_model_ver, optimizer=optimizer, epoch=100, decay_rate=0.5, decay_time=5, learning_rate=learning_rate, log_rate=10)
+    start_train_session(df, model, loss_fn, model_ver=next_model_ver, optimizer=optimizer, epoch=100, decay_rate=0.5, decay_time=5, learning_rate=learning_rate)
