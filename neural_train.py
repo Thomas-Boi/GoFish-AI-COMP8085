@@ -45,7 +45,8 @@ def train(self_hand_tensor: torch.Tensor,
 
 
 def start_train_session(dataframe, model, loss_fn, model_ver, optimizer, learning_rate=0.05,
-                        epoch=500, decay_rate=0.5, decay_time=50, log_rate=100000):
+                        epoch=500, decay_rate=0.5, decay_time=50, log_rate=100000,
+                        save_rate=1):
     """ Start a training session using the hyperparameters passed to the model """
     last_loss = 0
     losses = []
@@ -95,10 +96,11 @@ def start_train_session(dataframe, model, loss_fn, model_ver, optimizer, learnin
         # shuffle
         dataframe = dataframe.sample(frac=1).reset_index(drop=True)
 
-        save_model(model, f"neural_models/network_v{model_ver}_epoch{i}.pt")
+        if i % save_rate == 0:
+            save_model(model, f"upgraded_neural_models/network_v{model_ver}_epoch{i}.pt")
 
     # write losses to file
-    with open('losses.txt', 'a') as f:
+    with open('upgraded_losses.txt', 'a') as f:
         f.write("\n")
         for loss in losses:
             f.write(f"{loss} ")
@@ -197,21 +199,22 @@ if __name__ == "__main__":
 
     # MAKE SURE MODEL VERSION IS UPDATED
     model_ver = 1
-    epoch_ver = 1
+    epoch_ver = 6
     
     # next model (can be an int or a str)
     next_model_ver = model_ver + 1
-    # next_model_ver = "_test_adam"
+    # next_model_ver = 0
 
     # set up params for network model
-    model = load_model(f"neural_models/network_v{model_ver}_epoch_{epoch_ver}.pt", training=True)
+    model = load_model(f"upgraded_neural_models/network_v{model_ver}_epoch{epoch_ver}.pt", training=True)
     loss_fn = torch.nn.MSELoss(reduction='sum')
 
-    learning_rate = 0.05
+    learning_rate = 0.01
     # optimizer = torch.optim.SGD(model.parameters(), lr=learning_rate)
     optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
 
     print(f"Loading model v{model_ver}")
     print(f"Training model v{next_model_ver}")
     start_train_session(df, model, loss_fn, model_ver=next_model_ver, optimizer=optimizer,
-                        epoch=5, decay_rate=0.5, decay_time=1, learning_rate=learning_rate, log_rate=50000)
+                        epoch=14, decay_rate=0.5, decay_time=2,
+                        learning_rate=learning_rate, log_rate=100000)

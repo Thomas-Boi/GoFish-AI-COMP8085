@@ -33,12 +33,7 @@ class NeuralNetworkAI(nn.Module):
 
         # recall each we want to make a long tensor of size 1 X inputSize from the input
         # dim = 0 is row, dim = 1 is column
-        # for tensor in tensors:
-        #     print(tensor.shape)
         concated_input = torch.cat(tensors)
-        # print(concated_input.shape)
-
-        result = self.tanh(concated_input)
-        output = self.m1(result)
-
+        mo1 = self.m1(concated_input)
+        output = self.tanh(mo1)
         return self.softmax(output) # softmax before we return
