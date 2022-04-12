@@ -77,15 +77,19 @@ class NeuralNetPlayer(OppAwareAI):
                 fours,
                 deck_size_tensor)
 
-            # get the most likely card
-            highest_card_score = result_tensor.topk(1).values[0]
+            # get the sorted card values in desc order
+            sort_score_desc = result_tensor.topk(AMOUNT_OF_CARD_VALUES)
+            for card_index, score in zip(sort_score_desc.indices, sort_score_desc.values):
+                # check if it's in hand
+                card = card_values[card_index]
+                if self.hand[card] == 0:
+                    continue
 
-            # compare it => if it's better, save
-            if highest_card_score > best_score:
-                best_score = highest_card_score
-                best_card_index = result_tensor.topk(1).indices[0]
-                best_card = card_values[best_card_index]
-                opp_to_choose = opp.name
+                # compare it => if it's better, save
+                if score > best_score:
+                    best_score = score
+                    best_card = card
+                    opp_to_choose = opp.name
 
         # return the best option if possible, else make a random move
         if best_card is None:
