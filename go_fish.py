@@ -63,7 +63,7 @@ def ai_play():
     Create play sessions intended for AI development and training.
     """
     players_config = {
-        # "Random": RandomAI,
+        "Random": RandomAI,
         # "Random1": RandomAI,
         # "Random2": RandomAI,
         # "You": HumanPlayer,
@@ -73,7 +73,7 @@ def ai_play():
         # "OppAware4": OppAwareAI,
         # "SearchAI": SearchAI,
         # "You": HumanPlayer,
-        "Prob-Bot": ProbabilityAI,
+        # "Prob-Bot": ProbabilityAI,
         "NeuralNet": NeuralNetPlayer
     }
     result = {key: 0 for key in players_config}

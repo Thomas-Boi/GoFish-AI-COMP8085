@@ -197,9 +197,11 @@ if __name__ == "__main__":
     # decay_rate of 0.25 next
     # losses file: 12 sets of loss per epoch
 
+    # total number of epochs so far on the upgraded model: 26
+
     # MAKE SURE MODEL VERSION IS UPDATED
-    model_ver = 1
-    epoch_ver = 6
+    model_ver = 3
+    epoch_ver = 10
     
     # next model (can be an int or a str)
     next_model_ver = model_ver + 1
@@ -216,5 +218,5 @@ if __name__ == "__main__":
     print(f"Loading model v{model_ver}")
     print(f"Training model v{next_model_ver}")
     start_train_session(df, model, loss_fn, model_ver=next_model_ver, optimizer=optimizer,
-                        epoch=14, decay_rate=0.5, decay_time=2,
-                        learning_rate=learning_rate, log_rate=100000)
+                        epoch=10, decay_rate=0.5, decay_time=2,
+                        learning_rate=learning_rate, log_rate=50000)
