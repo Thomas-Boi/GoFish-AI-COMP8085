@@ -6,12 +6,6 @@ import pandas as pd
 import random
 from util import card_values
 
-TURN_TO_START_PROB_AI = 5
-"""
-The turn when we start calculating the probability of
-the card we are going to ask.
-"""
-
 CARD_NAME_SEPERATOR = "_"
 """
 Used to separate a card value and a name.
@@ -65,6 +59,22 @@ class ProbabilityAI(OppAwareAI):
         using the most probable card.
         """
 
+        self.turn_start_prob_ai = 5
+        """
+        The turn when we start calculating the probability of
+        the card we are going to ask.
+        """
+
+    def set_initial_state(self, opps: Tuple[OppStat]):
+        """
+        Set the initial state of the player.
+        :param opps, the opponents of this player in the game.
+        :param deck_count, the amount of cards in the deck.
+        """
+        super().set_initial_state(opps)
+        # short the turn to start prob AI if more than 2 players.
+        if len(opps) > 1:
+            self.turn_start_prob_ai = 3
 
     def make_move(self, other_players: Tuple[OppStat], deck_count: int) -> Move:
         """
@@ -74,15 +84,22 @@ class ProbabilityAI(OppAwareAI):
         """
         # randomly makes a random move at the beginning of the game 
         # then slowly switches to making a probability ask.
-        if self.ask_random_prob > 0:
-            rand_result = random.random()
-            if rand_result < self.ask_random_prob:
-                return self.make_random_move(other_players)
 
-            # decreases prob every x turns.
-            self.turn_counter += 1
-            if self.turn_counter % ANNEAL_RATE == 0:
-                self.ask_random_prob -= ANNEAL_AMOUNT
+        # simulated annealing
+        # if self.ask_random_prob > 0:
+        #     rand_result = random.random()
+        #     if rand_result <= self.ask_random_prob:
+        #         return self.make_random_move(other_players)
+
+        #     # decreases prob every x turns.
+        #     self.turn_counter += 1
+        #     if self.turn_counter % ANNEAL_RATE == 0:
+        #         self.ask_random_prob -= ANNEAL_AMOUNT
+        
+        # fixed randomness
+        self.turn_counter += 1
+        if self.turn_counter < self.turn_start_prob_ai:
+            return self.make_random_move(other_players)
 
         # contains the most probable card of each player
         best_prob_table = pd.DataFrame()
@@ -120,11 +137,6 @@ class ProbabilityAI(OppAwareAI):
 
         # get the pool we are selecting from
         pool = self.find_pool_size()
-        # if pool < hand_size:
-        #     print(f"OG opp hand size: {opp.hand_size}")
-        #     print(f"Hand size after removing known cards: {hand_size}")
-        #     print(f"Actual opp hand: {opp.actual_hand}")
-        #     self.find_pool_size(True)
 
         # fill out the table
         available_cards = [card for card, card_amount in self.hand.items() if card_amount > 0]
@@ -150,6 +162,7 @@ class ProbabilityAI(OppAwareAI):
                 result = self.find_prob_of_card(target_amount, remaining_amount, hand_size, pool)
                 self.prob_table.loc[target_amount, card] = result
                 if result == 0:
+                    # we hit zero now => any bigger value would hit 0 as well.
                     hit_zero = True
 
 
@@ -185,10 +198,6 @@ class ProbabilityAI(OppAwareAI):
         # our cards and fours
         pool_size -= self.get_hand_size()
         pool_size -= 4 * len(self.fours) # four of a kind == 4 cards each value
-        # if verbose:
-        #     print(self.hand)
-        #     print(self.fours)
-        #     print(pool_size)
 
         # do the same for opponents
         for opp in self.opponents.values():
@@ -198,10 +207,6 @@ class ProbabilityAI(OppAwareAI):
 
             # subtract 4s cause that's out
             pool_size -= 4 * len(opp.fours)
-            # if verbose:
-            #     print(opp.hand)
-            #     print(opp.fours)
-            #     print(pool_size)
 
         return pool_size
 

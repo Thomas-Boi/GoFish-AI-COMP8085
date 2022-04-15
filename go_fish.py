@@ -63,13 +63,13 @@ def ai_play():
     Create play sessions intended for AI development and training.
     """
     players_config = {
-        "Random": RandomAI,
-        # "Random1": RandomAI,
-        # "Random2": RandomAI,
+    #     "Random": RandomAI,
+    #     "Random1": RandomAI,
+    #     "Random2": RandomAI,
         # "You": HumanPlayer,
-        # "OppAware1": OppAwareAI,
-        # "OppAware2": OppAwareAI,
-        # "OppAware3": OppAwareAI,
+        "OppAware1": OppAwareAI,
+        "OppAware2": OppAwareAI,
+        "OppAware3": OppAwareAI,
         # "OppAware4": OppAwareAI,
         # "SearchAI": SearchAI,
         # "You": HumanPlayer,
@@ -81,7 +81,7 @@ def ai_play():
 
     # play the game
     start_time = time.time()
-    rounds = 100
+    rounds = 500
     for i in range(rounds):
         players = [constructor(name) for name, constructor in players_config.items()]
 
@@ -90,9 +90,11 @@ def ai_play():
         result["Total"] += 1
 
         if len(game.winners) > 1:
-            key_name = "_".join([winner.name for winner in game.winners])
-            val = result.get(key_name, 0)
-            result[key_name] = val + 1
+            # count the tie for each winner
+            for winner in game.winners:
+                key_name = winner.name + "_Tie"
+                val = result.get(key_name, 0)
+                result[key_name] = val + 1
         else:
             result[game.winners[0].name] += 1
 
