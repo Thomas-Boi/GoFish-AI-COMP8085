@@ -73,8 +73,8 @@ def ai_play():
         # "OppAware4": OppAwareAI,
         # "SearchAI": SearchAI,
         # "You": HumanPlayer,
-        # "Prob-Bot": ProbabilityAI,
-        "NeuralNet": NeuralNetPlayer
+        "Prob-Bot": ProbabilityAI,
+        # "NeuralNet": NeuralNetPlayer
     }
     result = {key: 0 for key in players_config}
     result["Total"] = 0

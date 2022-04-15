@@ -22,6 +22,16 @@ TARGET_AMOUNTS = list(range(1, 4))
 The amounts of a card value that we are checking (e.g 1 of 2, 2 of 2, 3 of 2).
 """
 
+ANNEAL_RATE = 2
+"""
+Amount of turns needed before the ask random probability decreases.
+"""
+
+ANNEAL_AMOUNT = 0.20
+"""
+Rate of the decrease in asking random probability.
+"""
+
 class ProbabilityAI(OppAwareAI):
 
     def __init__(self, name: str) -> None:
@@ -49,6 +59,12 @@ class ProbabilityAI(OppAwareAI):
         Contain a prob table that we can reuse to calculate probs.
         """
 
+        self.ask_random_prob = 1
+        """
+        Probability of the bot asking the opponent for a random card rather than 
+        using the most probable card.
+        """
+
 
     def make_move(self, other_players: Tuple[OppStat], deck_count: int) -> Move:
         """
@@ -56,10 +72,17 @@ class ProbabilityAI(OppAwareAI):
         :return a tuple of target player, which is a number, and a card
         to ask that player.
         """
-        self.turn_counter += 1
-        if self.turn_counter < TURN_TO_START_PROB_AI:
-            return self.make_random_move(other_players)
+        # randomly makes a random move at the beginning of the game 
+        # then slowly switches to making a probability ask.
+        if self.ask_random_prob > 0:
+            rand_result = random.random()
+            if rand_result < self.ask_random_prob:
+                return self.make_random_move(other_players)
 
+            # decreases prob every x turns.
+            self.turn_counter += 1
+            if self.turn_counter % ANNEAL_RATE == 0:
+                self.ask_random_prob -= ANNEAL_AMOUNT
 
         # contains the most probable card of each player
         best_prob_table = pd.DataFrame()
