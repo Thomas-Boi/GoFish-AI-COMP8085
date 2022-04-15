@@ -15,7 +15,7 @@ from player.NeuralNetPlayer import NeuralNetPlayer, DATABASE
 
 
 def gather_data():
-    """ Play games for x time to collect training data """
+    """ Play games for x time to collect training data. """
     players_config = {
         "Opp1": OppAwareAI,
         "Opp2": OppAwareAI,

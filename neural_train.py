@@ -191,14 +191,7 @@ if __name__ == "__main__":
     # this is the cleaned data with the converted lists
     df = pd.read_pickle("cleaned_rounds_data.pkl")
 
-    # NOTES:
-    # learning rate may be need to be lowered
-    # total epochs taken might be 10 or a little over that
-    # decay_rate of 0.25 next
-    # losses file: 12 sets of loss per epoch
-
     # total number of epochs so far on the upgraded model: 26
-
     # MAKE SURE MODEL VERSION IS UPDATED
     model_ver = 3
     epoch_ver = 10
@@ -208,7 +201,7 @@ if __name__ == "__main__":
     # next_model_ver = 0
 
     # set up params for network model
-    model = load_model(f"upgraded_neural_models/network_v{model_ver}_epoch{epoch_ver}.pt", training=True)
+    model = load_model(f"neural_models/network_v{model_ver}_epoch{epoch_ver}.pt", training=True)
     loss_fn = torch.nn.MSELoss(reduction='sum')
 
     learning_rate = 0.01

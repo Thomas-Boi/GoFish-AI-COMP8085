@@ -43,7 +43,7 @@ class NeuralNetPlayer(OppAwareAI):
         # load the network from file
         # must set on eval() if we are no longer training
         self.network = NeuralNetworkAI(INPUT_SIZE, OUTPUT_SIZE)
-        self.network.load_state_dict(torch.load("upgraded_neural_models/network_v3_epoch10.pt"))
+        self.network.load_state_dict(torch.load("neural_models/network_v3_epoch10.pt"))
         self.network.eval()
 
         self.gathering_data = False
