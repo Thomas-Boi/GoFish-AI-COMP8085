@@ -133,8 +133,9 @@ class Game:
                 amount = target.get_cards(move.card)
                 cur_player.give_cards(move.card, amount)
                 if cur_player.check_for_fours_in_hand(move.card):
-                    move.found_fours = move.card
-                    move.fours_source = Move.ASKING
+                    pass # for the hiding fours exp
+                    # move.found_fours = move.card
+                    # move.fours_source = Move.ASKING
                 move.ask_succeed = True
                 move.amount = amount
             else:
@@ -145,8 +146,9 @@ class Game:
                     move.fish_succeed = True
 
                 if cur_player.check_for_fours_in_hand(fish):
-                    move.found_fours = fish
-                    move.fours_source = Move.FISHING
+                    pass # for the hiding fours exp
+                    # move.found_fours = fish
+                    # move.fours_source = Move.FISHING
 
             if verbose:
                 print(move, end='\n\n')

@@ -101,7 +101,9 @@ class Player:
         POV. This means they can see the player's name, hand count
         and four-of-a-kinds player already collected.
         """
-        return OppStat(self.name, self.get_hand_size(), list(self.fours))
+        # return OppStat(self.name, self.get_hand_size(), list(self.fours))
+        # for the hiding fours exp
+        return OppStat(self.name, self.get_hand_size(), list())
 
     def get_hands_detailed(self) -> str:
         """
