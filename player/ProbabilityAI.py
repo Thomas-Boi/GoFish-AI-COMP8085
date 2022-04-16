@@ -16,16 +16,6 @@ TARGET_AMOUNTS = list(range(1, 4))
 The amounts of a card value that we are checking (e.g 1 of 2, 2 of 2, 3 of 2).
 """
 
-ANNEAL_RATE = 2
-"""
-Amount of turns needed before the ask random probability decreases.
-"""
-
-ANNEAL_AMOUNT = 0.20
-"""
-Rate of the decrease in asking random probability.
-"""
-
 class ProbabilityAI(OppAwareAI):
 
     def __init__(self, name: str) -> None:
@@ -59,7 +49,17 @@ class ProbabilityAI(OppAwareAI):
         using the most probable card.
         """
 
-        self.turn_start_prob_ai = 5
+        self.anneal_rate = 1
+        """
+        Amount of turns needed before the ask random probability decreases.
+        """
+
+        self.anneal_amount = 0.10
+        """
+        Rate of the decrease in asking random probability.
+        """
+
+        self.turn_start_prob_ai = 6
         """
         The turn when we start calculating the probability of
         the card we are going to ask.
@@ -73,8 +73,12 @@ class ProbabilityAI(OppAwareAI):
         """
         super().set_initial_state(opps)
         # short the turn to start prob AI if more than 2 players.
-        if len(opps) > 1:
-            self.turn_start_prob_ai = 3
+
+        # customize the fixed randomness turn
+        # if len(opps) == 2:
+        #     self.turn_start_prob_ai = 5
+        # elif len(opps) == 3:
+        #     self.turn_start_prob_ai = 4
 
     def make_move(self, other_players: Tuple[OppStat], deck_count: int) -> Move:
         """
@@ -93,8 +97,8 @@ class ProbabilityAI(OppAwareAI):
 
         #     # decreases prob every x turns.
         #     self.turn_counter += 1
-        #     if self.turn_counter % ANNEAL_RATE == 0:
-        #         self.ask_random_prob -= ANNEAL_AMOUNT
+            # if self.turn_counter % self.anneal_rate == 0:
+            #     self.ask_random_prob -= self.anneal_amount
         
         # fixed randomness
         self.turn_counter += 1
