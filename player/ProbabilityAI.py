@@ -16,6 +16,13 @@ TARGET_AMOUNTS = list(range(1, 4))
 The amounts of a card value that we are checking (e.g 1 of 2, 2 of 2, 3 of 2).
 """
 
+TRIPLE = 3
+PAIR = 2
+SINGLE = 1
+"""
+Different classes of cards.
+"""
+
 class ProbabilityAI(OppAwareAI):
 
     def __init__(self, name: str) -> None:
@@ -65,6 +72,16 @@ class ProbabilityAI(OppAwareAI):
         the card we are going to ask.
         """
 
+        self.types = [[] for i in range(3)] 
+        """
+        Types of cards we will see in the game. 3 types: SINGLE, PAIR, TRIPLE.
+        """
+
+        self.cur_ask_type = SINGLE
+        """
+        Start out by asking for singles.
+        """
+
     def set_initial_state(self, opps: Tuple[OppStat]):
         """
         Set the initial state of the player.
@@ -72,13 +89,19 @@ class ProbabilityAI(OppAwareAI):
         :param deck_count, the amount of cards in the deck.
         """
         super().set_initial_state(opps)
-        # short the turn to start prob AI if more than 2 players.
+        for card, count in self.hand.items():
+            # none or fours will not be dealt with
+            if count == 0 or count == 4:
+                continue
+
+            # remaninig count is 1, 2, 3 => -1 is 0, 1, 2
+            self.types[count - 1].append(card)
 
         # customize the fixed randomness turn
-        # if len(opps) == 2:
-        #     self.turn_start_prob_ai = 5
-        # elif len(opps) == 3:
-        #     self.turn_start_prob_ai = 4
+        if len(opps) == 2:
+            self.turn_start_prob_ai = 5
+        elif len(opps) == 3:
+            self.turn_start_prob_ai = 4
 
     def make_move(self, other_players: Tuple[OppStat], deck_count: int) -> Move:
         """
@@ -109,9 +132,7 @@ class ProbabilityAI(OppAwareAI):
         best_prob_table = pd.DataFrame()
         for opp in self.opponents.values():
             prob_table = self.generate_prob_table(opp)
-            # print("done generate prob table")
             best_card_for_opp = self.find_best_card(prob_table)
-            # print("done find best per opp")
 
             # add this as a column
             # to address same value from different players, append them
@@ -119,9 +140,13 @@ class ProbabilityAI(OppAwareAI):
         
         # find best column with the best card
         best_card = self.find_best_card(best_prob_table)
-        # print("done find best per move")
         # retrieve the card name and opp name
         card, opp_name = str(best_card.name).split(CARD_NAME_SEPERATOR)
+
+        # update cur ask state for next round
+        self.cur_ask_type += 1
+        if self.cur_ask_type > TRIPLE:
+            self.cur_ask_type = SINGLE
 
         # fill out opp_name properly later
         return Move(self.name, opp_name, card) 
@@ -143,7 +168,16 @@ class ProbabilityAI(OppAwareAI):
         pool = self.find_pool_size()
 
         # fill out the table
-        available_cards = [card for card, card_amount in self.hand.items() if card_amount > 0]
+        available_cards = []
+        ask_type = self.cur_ask_type
+        while len(available_cards) == 0:
+            available_cards = [card for card, card_amount in self.hand.items() if card_amount == ask_type]
+                
+            # if there are none, fall back to previous one
+            ask_type -= 1
+            if ask_type < SINGLE:
+                ask_type = TRIPLE
+
         for card in available_cards:
             remaining_amount = self.find_remaining_amount(card)
 
@@ -259,7 +293,6 @@ class ProbabilityAI(OppAwareAI):
 
         candidates = []
         highest_prob = 0
-        # print("Find best card")
 
         for row in prob_table.iterrows():
             index, data = row

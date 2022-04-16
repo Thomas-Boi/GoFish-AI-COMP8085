@@ -63,13 +63,13 @@ def ai_play():
     Create play sessions intended for AI development and training.
     """
     players_config = {
-    #     "Random": RandomAI,
-    #     "Random1": RandomAI,
-    #     "Random2": RandomAI,
+        "Random": RandomAI,
+        "Random1": RandomAI,
+        "Random2": RandomAI,
         # "You": HumanPlayer,
-        "OppAware1": OppAwareAI,
-        "OppAware2": OppAwareAI,
-        "OppAware3": OppAwareAI,
+        # "OppAware1": OppAwareAI,
+        # "OppAware2": OppAwareAI,
+        # "OppAware3": OppAwareAI,
         # "OppAware4": OppAwareAI,
         # "SearchAI": SearchAI,
         # "You": HumanPlayer,
