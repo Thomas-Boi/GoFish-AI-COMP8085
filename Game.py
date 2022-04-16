@@ -119,7 +119,7 @@ class Game:
             cur_player.update_opponents(other_players)
             move = cur_player.make_move(other_players, len(self.deck.cards))
             if not cur_player.has_card(move.card):
-                print(f"Invalid choice! {color_text(move.asker, Fore.RED)} must ask for a card in their own hand.")
+                print(f"Invalid choice! {color_text(move.asker, Fore.RED)} must ask for a card in their own hand. Hand: {cur_player.hand}. Asked Card: {move.card}")
                 continue
 
             # get the target player and ask them
