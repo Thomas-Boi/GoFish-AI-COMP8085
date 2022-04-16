@@ -46,8 +46,10 @@ class Game:
         Init the game by dealing the cards to each player.
         """
         initial_hands_count = 7
-        if len(self.players) >= 4:
+        if len(self.players) == 4:
             initial_hands_count = 5
+        elif len(self.players) > 4:
+            raise ValueError("Can only have between 2-4 players")
 
         for player in self.players:
             hand = self.deck.draw(initial_hands_count)
@@ -57,7 +59,7 @@ class Game:
         for player in self.players:
             # update the players on the state of the board starting out
             opps = self.get_stats_from_opponents(player)
-            player.set_initial_state(opps, len(self.deck.cards))
+            player.set_initial_state(opps)
 
         # shuffle the cur_index so player who goes first
         # start randomly each round
@@ -76,8 +78,12 @@ class Game:
         
         # before we start, check if anyone got 4 of a kind
         for player in self.players:
-            has_four = player.check_for_fours_in_hand()
-            if has_four:
+            player_hand = player.hand
+            has_four = False
+            for card in player_hand:
+                has_four = player.check_for_fours_in_hand(card)
+
+            if has_four and verbose:
                 print(f"{color_text('LUCKY', Fore.YELLOW)}! Player {color_text(player.name, Fore.CYAN)} found a four-of-a-kind at the start!")
                 
         while not self.is_game_ended():
@@ -110,9 +116,10 @@ class Game:
             other_players = self.get_stats_from_opponents(self.players[self.cur_index])
 
             # check to ensure players picked the right card and target
-            move = cur_player.make_move(tuple(other_players), len(self.deck.cards))
+            cur_player.update_opponents(other_players)
+            move = cur_player.make_move(other_players, len(self.deck.cards))
             if not cur_player.has_card(move.card):
-                print(f"Invalid choice! {color_text(move.asker, Fore.RED)} must ask for a card in their own hand.")
+                print(f"Invalid choice! {color_text(move.asker, Fore.RED)} must ask for a card in their own hand. Hand: {cur_player.hand}. Asked Card: {move.card}")
                 continue
 
             # get the target player and ask them
@@ -143,7 +150,7 @@ class Game:
 
             if verbose:
                 print(move, end='\n\n')
-                if slow: time.sleep(4)
+                if slow: time.sleep(2)
 
             # update all the players on result of move
             for player in self.players:

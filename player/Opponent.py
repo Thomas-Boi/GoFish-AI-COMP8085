@@ -37,11 +37,12 @@ class Opponent:
         Ex: four 2s are stored as one 2 value in the set.
         """
 
+
     def update(self, stat: OppStat):
         """
         Update the opponent's stat.
         """
-        for attr, value in stat.items():
+        for attr, value in stat._asdict().items():
             setattr(self, attr, value)
 
     def has_card(self, card) -> bool:
